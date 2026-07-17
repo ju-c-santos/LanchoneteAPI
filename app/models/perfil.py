@@ -1,0 +1,6 @@
+import enum
+
+class Perfil (enum.Enum):
+    CLIENTE = "CLIENTE"
+    FUNCIONARIO = "FUNCIONARIO"
+    GERENCIA = "GERENCIA"
