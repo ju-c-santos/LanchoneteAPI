@@ -10,8 +10,4 @@ class Usuario(db.Model):
     senha_hash = db.Column(db.String(225))
     perfil = db.Column(db.String(30), nullable=False, default=Perfil.CLIENTE)
 
-    gerente = db.Column(
-        "Funcionario", 
-        back_populates = "usuario",
-        uselist = False 
-    )
+    gerente = db.Column("Funcionario", back_populates = "usuario",uselist = False)
