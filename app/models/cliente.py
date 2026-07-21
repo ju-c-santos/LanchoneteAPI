@@ -11,4 +11,4 @@ class Cliente(db.Model):
         db.ForeignKey("usuario.id")
     )
 
-    usuario = db.relationship("Usuario")
+    usuarios = db.relationship("Usuario", back_populates="cliente")

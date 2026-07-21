@@ -16,7 +16,7 @@ class UsuarioRepository:
     
     @staticmethod
     def chase_by_email(email:str):
-        return Usuario.query.filter_by(email=email).firts()
+        return Usuario.query.filter_by(email=email).first()
     
     #mostrar
     @staticmethod
@@ -30,6 +30,10 @@ class UsuarioRepository:
 
     #excluir
     @staticmethod
-    def delete(usuario: Usuario):
+    def delete(usuario_id: int):
+        usuario = db.session.get(Usuario, usuario_id)
+        if usuario is None:
+            return False
         db.session.delete(usuario)
         db.session.commit()
+        return True

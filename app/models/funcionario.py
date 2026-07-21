@@ -14,13 +14,13 @@ class Funcionario(db.Model):
 
     unidade_id = db.Column(
         db.Integer, 
-        db.ForeignKey("unidades.id"),
+        db.ForeignKey("unidade.id"),
         nullable = False
     )
 
     cargo = db.Column(db.String(30), nullable=False)
 
 
-    usuario = db.relationship("Usuario", back_populates = "funcionario")
+    usuarios = db.relationship("Usuario", back_populates = "funcionarios")
     unidade = db.relationship("Unidade", back_populates = "funcionarios")
 

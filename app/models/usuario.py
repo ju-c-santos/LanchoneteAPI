@@ -1,5 +1,6 @@
 from app.database import db
 from app.models.perfil import Perfil
+from app.models.funcionario import Funcionario
 
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
@@ -8,6 +9,10 @@ class Usuario(db.Model):
     nome = db.Column(db.String(120), nullable = False)
     email = db.Column(db.String(150), unique = False)
     senha_hash = db.Column(db.String(225))
-    perfil = db.Column(db.String(30), nullable=False, default=Perfil.CLIENTE)
+    perfil = db.Column(db.Enum(Perfil), nullable=False, default=Perfil.CLIENTE)
 
-    gerente = db.Column("Funcionario", back_populates = "usuario",uselist = False)
+    funcionarios = db.relationship(
+        "Funcionario", 
+        back_populates = "usuarios",
+        uselist = False
+    )

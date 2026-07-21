@@ -6,7 +6,9 @@ from app.database import db, migrate
 jwt = JWTManager()
 
 def create_app():
+    from app.models.funcionario import Funcionario
     from app.models.usuario import Usuario
+    from app.models.unidade import Unidade
     from app.routes.login_route import auth_bp
 
     app = Flask(__name__)
