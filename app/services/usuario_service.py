@@ -31,7 +31,7 @@ class AuthServiceUsuario:
         token = create_access_token(
             identity = usuario.id, 
             additional_claims={
-                "perfil": usuario.perfil
+                "perfil": usuario.perfil.value
             }
         )
 
