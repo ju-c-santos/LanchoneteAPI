@@ -4,7 +4,7 @@ from app.services.usuario_service import AuthServiceUsuario
 usuario_bp = Blueprint('usuarios', __name__)
 
 @usuario_bp.route('/register', methods=['POST'])
-def reister_user():
+def register_user():
     try:
         dados = request.get_json()
         usuario = AuthServiceUsuario.userRegister(dados)

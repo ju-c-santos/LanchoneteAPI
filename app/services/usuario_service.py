@@ -16,13 +16,18 @@ class AuthServiceUsuario:
         if cpf_exists:
             raise ValueError("CPF já cadastrado")
         
+        perfil = Perfil.CLIENTE
+
+        if "perfil" in dados:
+            perfil = Perfil[dados["perfil"]]
+        
         usuario = Usuario(
             nome = dados['nome'],
             email = dados['email'],
             cpf = dados['cpf'],
             telefone = dados['telefone'],
             senha_hash = generate_password_hash(dados['senha']),
-            perfil = Perfil(dados['perfil'])
+            perfil = perfil
         )
         return UsuarioRepository.save(usuario)
     

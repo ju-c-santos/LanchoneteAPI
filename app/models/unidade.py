@@ -9,3 +9,4 @@ class Unidade(db.Model):
 
     funcionarios = db.relationship("Funcionario", back_populates = "unidade")
     
+    

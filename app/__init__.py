@@ -3,6 +3,7 @@ from flask_jwt_extended import JWTManager
 from app.database import db, migrate
 from app.routes.login_route import auth_bp
 from app.routes.usuarios_routes import usuario_bp
+from app.routes.register_funcionario_route import funcionario_bp
 
 jwt = JWTManager()
 
@@ -20,5 +21,6 @@ def create_app():
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(usuario_bp)
+    app.register_blueprint(funcionario_bp)
 
     return app

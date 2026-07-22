@@ -4,7 +4,6 @@ class Cliente(db.Model):
     __tablename__ = 'clientes'
 
     id = db.Column(db.Integer, primary_key=True)
-    telefone = db.Column(db.String(20))
 
     usuario_id = db.Column (
         db.Integer, 
