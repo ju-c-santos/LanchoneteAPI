@@ -29,7 +29,7 @@ class AuthServiceUsuario:
             raise Exception("senha inválida")
         
         token = create_access_token(
-            identity = usuario.id, 
+            identity = str(usuario.id), 
             additional_claims={
                 "perfil": usuario.perfil.value
             }
