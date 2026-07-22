@@ -29,9 +29,9 @@ class AuthServiceUsuario:
     @staticmethod
     def login(user, senha):
         if '@' in user:
-            usuario = UsuarioRepository.chase_by_email(usuario)
+            usuario = UsuarioRepository.chase_by_email(user)
         else:
-            usuario = UsuarioRepository.chase_by_cpf(usuario)
+            usuario = UsuarioRepository.chase_by_cpf(user)
 
         if usuario is None:
             raise Exception("Usuário não encontrado")
