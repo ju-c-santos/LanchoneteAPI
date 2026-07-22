@@ -18,6 +18,10 @@ class UsuarioRepository:
     def chase_by_email(email:str):
         return Usuario.query.filter_by(email=email).first()
     
+    @staticmethod
+    def chase_by_cpf(cpf: int):
+        return Usuario.query.filter_by(cpf=cpf).first()
+    
     #mostrar
     @staticmethod
     def show():

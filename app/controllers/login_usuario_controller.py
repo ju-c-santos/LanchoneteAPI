@@ -8,7 +8,7 @@ class AuthControllerUsuario:
         try:
             dados = request.get_json()
             token = AuthServiceUsuario.login(
-                dados["email"],
+                dados["user"],
                 dados["senha"]
             )
             return jsonify({

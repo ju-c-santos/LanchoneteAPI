@@ -3,25 +3,36 @@ from flask_jwt_extended import create_access_token
 
 from app.models.usuario import Usuario
 from app.repositories.usuario_repository import UsuarioRepository
+from app.models.perfil import Perfil
 
 class AuthServiceUsuario:
 
     @staticmethod
     def userRegister(dados):
-        usuario_exists = UsuarioRepository.chase_by_email(dados['email'])
-        if usuario_exists:
+        email_exists = UsuarioRepository.chase_by_email(dados['email'])
+        cpf_exists = UsuarioRepository.chase_by_cpf(dados['cpf'])
+        if email_exists:
             raise ValueError("E-mail já cadastrado.")
+        if cpf_exists:
+            raise ValueError("CPF já cadastrado")
         
         usuario = Usuario(
             nome = dados['nome'],
             email = dados['email'],
-            senha_hash = generate_password_hash(dados['senha'])
+            cpf = dados['cpf'],
+            telefone = dados['telefone'],
+            senha_hash = generate_password_hash(dados['senha']),
+            perfil = Perfil(dados['perfil'])
         )
         return UsuarioRepository.save(usuario)
     
     @staticmethod
-    def login(email, senha):
-        usuario = UsuarioRepository.chase_by_email(email)
+    def login(user, senha):
+        if '@' in user:
+            usuario = UsuarioRepository.chase_by_email(usuario)
+        else:
+            usuario = UsuarioRepository.chase_by_cpf(usuario)
+
         if usuario is None:
             raise Exception("Usuário não encontrado")
         

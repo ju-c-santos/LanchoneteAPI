@@ -12,7 +12,8 @@ def reister_user():
         return jsonify({
             "id": usuario.id,
             "nome": usuario.nome,
-            "email": usuario.email
+            "email": usuario.email,
+            "telefone": usuario.telefone
         }), 201
     except ValueError as erro:
         return jsonify({"erro": str(erro)}), 400
