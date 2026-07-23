@@ -1,26 +1,22 @@
 from flask import Blueprint, request, jsonify
 from app.services.funcionario_service import RegisterServiceFuncionario
-from flask_jwt_extended import jwt_required
+from app.util.decorator_perfil import perfil_required
 
 funcionario_bp = Blueprint('funcionarios', __name__)
 
 @funcionario_bp.route('/register/funcionarios', methods=['POST'])
-@jwt_required("GERENCIA", "ADMINISTRADOR")
-def reigster_funcionario():
+@perfil_required("GERENCIA", "ADMINISTRADOR")
+def register_funcionario():
     try:
         dados = request.get_json()
-        if dados['cargo'] in ('GERENCIA','ADMINISTRADOR'):
-            return jsonify({"erro": 'sem permissão para cadastro'}), 403
-        else: 
-            funcionario = RegisterServiceFuncionario.fucionarioRegister(dados)
-            return jsonify({
-                "id": funcionario.id,
-                "usuario_id": funcionario.usuario_id,
-                "unidade_id": funcionario.unidade_id,
-                "cargo": funcionario.cargo
-            }), 201
+        funcionario = RegisterServiceFuncionario.fucionarioRegister(dados)
+        return jsonify({
+            "id": funcionario.id,
+            "usuario_id": funcionario.usuario_id,
+            "unidade_id": funcionario.unidade_id,
+            "cargo": funcionario.cargo
+        }), 201
     except ValueError as erro:
         return jsonify({"erro": str(erro)}), 400
-    
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
