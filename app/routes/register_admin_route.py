@@ -1,15 +1,13 @@
 from flask import Blueprint, request, jsonify
 from app.services.funcionario_service import RegisterServiceFuncionario
-from flask_jwt_extended import jwt_required
 
-funcionario_bp = Blueprint('funcionarios', __name__)
+admin_bp = Blueprint('admin', __name__)
 
-@funcionario_bp.route('/register/funcionarios', methods=['POST'])
-@jwt_required("GERENCIA", "ADMINISTRADOR")
-def reigster_funcionario():
+@admin_bp.route('/register/funcionarios/admin', methods=['POST'])
+def reigster_admin():
     try:
         dados = request.get_json()
-        if dados['cargo'] in ('GERENCIA','ADMINISTRADOR'):
+        if dados['cargo'] not in ('GERENCIA','ADMINISTRADOR'):
             return jsonify({"erro": 'sem permissão para cadastro'}), 403
         else: 
             funcionario = RegisterServiceFuncionario.fucionarioRegister(dados)
