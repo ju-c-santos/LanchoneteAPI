@@ -1,6 +1,5 @@
 from app.models.perfil import Perfil
 from app.models.funcionario import Funcionario
-from app.models.usuario import Usuario
 from app.repositories.usuario_repository import UsuarioRepository
 from app.repositories.funcionario_repository import FuncionarioRepository
 
@@ -16,9 +15,18 @@ class RegisterServiceFuncionario:
         funcionario = Funcionario(
             usuario_id = dados['id'],
             unidade_id = dados['unidade'],
-            cargo = dados['cargo']
+            perfil = dados['perfil']
         )
 
-        usuario.perfil = Perfil.FUNCIONARIO
+        if funcionario.perfil == Perfil.GERENCIA:
+            usuario.perfil = Perfil.GERENCIA
+
+        elif funcionario.perfil == Perfil.ADMINISTRADOR:
+            usuario.perfil = Perfil.ADMINISTRADOR
+
+        elif funcionario.perfil == Perfil.COZINHEIRO:
+            usuario.perfil = Perfil.COZINHEIRO
+        else:
+            usuario.perfil = Perfil.ATENDENTE
 
         return FuncionarioRepository.save(funcionario)
