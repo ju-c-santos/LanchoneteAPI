@@ -6,7 +6,7 @@ class FuncionarioRepository:
     @staticmethod
     def save(funcionario: Funcionario):
         db.session.add(funcionario)
-        db.session.flush()
+        db.session.commit()
         return funcionario
     
     #buscando
