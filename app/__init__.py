@@ -18,6 +18,8 @@ def create_app():
     from app.models.funcionario import Funcionario
     from app.models.usuario import Usuario
     from app.models.unidade import Unidade
+    from app.models.perfil import Perfil
+    from app.models.cliente import Cliente
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(usuario_bp)

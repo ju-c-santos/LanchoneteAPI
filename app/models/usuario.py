@@ -19,3 +19,9 @@ class Usuario(db.Model):
         back_populates = "usuarios",
         uselist = False
     )
+
+    cliente = db.relationship(
+        "Cliente",
+        back_populates="usuarios",
+        uselist=False
+    )

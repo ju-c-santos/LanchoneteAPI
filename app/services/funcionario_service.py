@@ -15,16 +15,16 @@ class RegisterServiceFuncionario:
         funcionario = Funcionario(
             usuario_id = dados['id'],
             unidade_id = dados['unidade'],
-            perfil = dados['perfil']
+            cargo = dados['cargo']
         )
 
-        if funcionario.perfil == Perfil.GERENCIA:
+        if funcionario.cargo == Perfil.GERENCIA:
             usuario.perfil = Perfil.GERENCIA
 
-        elif funcionario.perfil == Perfil.ADMINISTRADOR:
+        elif funcionario.cargo == Perfil.ADMINISTRADOR:
             usuario.perfil = Perfil.ADMINISTRADOR
 
-        elif funcionario.perfil == Perfil.COZINHEIRO:
+        elif funcionario.cargo == Perfil.COZINHEIRO:
             usuario.perfil = Perfil.COZINHEIRO
         else:
             usuario.perfil = Perfil.ATENDENTE

@@ -4,7 +4,7 @@ from app.database import db
 class FuncionarioRepository:
     #salvando 
     @staticmethod
-    def save(funcionario: Funcionario, ):
+    def save(funcionario: Funcionario):
         db.session.add(funcionario)
         db.session.commit()
         return funcionario

@@ -5,9 +5,13 @@ class Cliente(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    usuario_id = db.Column (
+    usuarios_id = db.Column (
         db.Integer, 
-        db.ForeignKey("usuario.id")
+        db.ForeignKey("usuarios.id")
     )
 
-    usuarios = db.relationship("Usuario", back_populates="cliente")
+    usuarios = db.relationship(
+        "Usuario", 
+        back_populates="cliente",
+        uselist=False
+    )
