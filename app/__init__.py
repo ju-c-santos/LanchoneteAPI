@@ -5,26 +5,28 @@ from app.routes.login_route import auth_bp
 from app.routes.usuarios_routes import usuario_bp
 from app.routes.register_funcionario_route import funcionario_bp
 from app.routes.register_admin_route import admin_bp
+from app.routes.unidade_register_route import unidade_bp
 
 jwt = JWTManager()
 
 def create_app():
-    app = Flask(__name__)
-    app.config.from_object('app.config.Config')
-
-    db.init_app(app)
-    migrate.init_app(app, db)
-    jwt.init_app(app)
-
     from app.models.funcionario import Funcionario
     from app.models.usuario import Usuario
     from app.models.unidade import Unidade
     from app.models.perfil import Perfil
     from app.models.cliente import Cliente
 
+    app = Flask(__name__)
+    app.config.from_object('app.config.Config')
+
+    db.init_app(app)
+    migrate.init_app(app, db)
+    jwt.init_app(app)
+    
     app.register_blueprint(auth_bp)
     app.register_blueprint(usuario_bp)
     app.register_blueprint(funcionario_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(unidade_bp)
 
     return app

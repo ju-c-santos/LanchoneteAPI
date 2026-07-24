@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.services.funcionario_service import RegisterServiceFuncionario
+from app.services.administrador_service import RegisterServiceAdm
 from flask_jwt_extended import jwt_required
 
 admin_bp = Blueprint('admin', __name__)
@@ -9,7 +9,7 @@ admin_bp = Blueprint('admin', __name__)
 def reigster_admin():
     try:
         dados = request.get_json()
-        funcionario = RegisterServiceFuncionario.fucionarioRegister(dados)
+        funcionario = RegisterServiceAdm.admRegister(dados)
         return jsonify({
             "id": funcionario.id,
             "usuario_id": funcionario.usuario_id,
