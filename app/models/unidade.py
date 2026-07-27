@@ -13,7 +13,17 @@ class Unidade(db.Model):
     funcionarios = db.relationship(
         "Funcionario", 
         back_populates = "unidade",
-        #relacionamento 1 - 1.. -> uselist = True
-        )
+        cascade = "all, delete-orphan",
+        passive_deletes = True
+        #relacionamento 1 - * -> uselist = True
+    )
+    
+    estoque = db.relationship(
+        "Estoque",
+        back_populates="unidade",
+        uselist=False,
+        cascade = "all, delete-orphan",
+        passive_deletes = True
+    )
     
     

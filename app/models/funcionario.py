@@ -7,20 +7,26 @@ class Funcionario(db.Model):
 
     usuario_id = db.Column(
         db.Integer,
-        db.ForeignKey("usuarios.id"),
+        db.ForeignKey("usuarios.id", ondelete='CASCADE'),
         nullable = False,
         unique = True
     )
 
     unidade_id = db.Column(
         db.Integer, 
-        db.ForeignKey("unidade.id"),
+        db.ForeignKey("unidade.id", ondelete="CASCADE"),
         nullable = False
     )
 
     cargo = db.Column(db.String(30), nullable=False)
 
 
-    usuarios = db.relationship("Usuario", back_populates = "funcionarios")
-    unidade = db.relationship("Unidade", back_populates = "funcionarios")
+    usuarios = db.relationship(
+        "Usuario", 
+        back_populates = "funcionarios"
+    )
+    unidade = db.relationship(
+        "Unidade", 
+        back_populates = "funcionarios"
+    )
 

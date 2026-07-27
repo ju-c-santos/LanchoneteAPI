@@ -32,7 +32,7 @@ class UsuarioRepository:
     def update():
         db.session.commit()
 
-    #excluir
+    #excluir *****
     @staticmethod
     def delete(usuario_id: int):
         usuario = db.session.get(Usuario, usuario_id)

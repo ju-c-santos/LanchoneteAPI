@@ -7,7 +7,8 @@ class Cliente(db.Model):
 
     usuarios_id = db.Column (
         db.Integer, 
-        db.ForeignKey("usuarios.id")
+        db.ForeignKey("usuarios.id", ondelete='CASCADE'),
+        nullable=False
     )
 
     usuarios = db.relationship(

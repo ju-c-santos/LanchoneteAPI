@@ -17,11 +17,15 @@ class Usuario(db.Model):
     funcionarios = db.relationship(
         "Funcionario", 
         back_populates = "usuarios",
-        uselist = False
+        uselist = False,
+        cascade = "all, delete-orphan",
+        passive_deletes = True
     )
 
     cliente = db.relationship(
         "Cliente",
         back_populates="usuarios",
-        uselist=False
+        uselist=False,
+        cascade = "all, delete-orphan",
+        passive_deletes = True
     )

@@ -6,6 +6,9 @@ from app.routes.usuarios_routes import usuario_bp
 from app.routes.register_funcionario_route import funcionario_bp
 from app.routes.register_admin_route import admin_bp
 from app.routes.unidade_register_route import unidade_bp
+from app.routes.estoque_route import estoque_bp
+from app.routes.produto_route import produto_bp
+
 
 jwt = JWTManager()
 
@@ -15,6 +18,8 @@ def create_app():
     from app.models.unidade import Unidade
     from app.models.perfil import Perfil
     from app.models.cliente import Cliente
+    from app.models.estoque import Estoque
+    from app.models.produto import Produto
 
     app = Flask(__name__)
     app.config.from_object('app.config.Config')
@@ -28,5 +33,8 @@ def create_app():
     app.register_blueprint(funcionario_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(unidade_bp)
+    app.register_blueprint(produto_bp)
+    app.register_blueprint(estoque_bp)
+
 
     return app
