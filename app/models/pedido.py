@@ -17,10 +17,10 @@ class Pedido(db.Model):
         nullable= False
     )
     status = db.Column(db.Enum(Status), nullable=False, default=Status.AGUARDANDO_PAGAMENTO)
-    data_pedido = db.Column(db.String(100), nullable=False)
+    data_pedido = db.Column(db.DateTime, nullable=False)
     observacao = db.Column(db.Text)
     total = db.Column(db.Float, nullable=False)
-
+    metodo_pagamento = db.Column(db.Enum(MetodoPagamento), nullable=False, default=MetodoPagamento.DINHEIRO)
 
     usuarios = db.relationship(
         "Usuario",
@@ -38,3 +38,14 @@ class Pedido(db.Model):
         cascade="all, delete-orphan",
         passive_deletes = True
     )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "unidade_id": self.unidade_id,
+            "status": self.status.value,
+            "total": self.total,
+            "observacao": self.observacao,
+            "metodo_pagamento": self.metodo_pagamento.value,
+            "itempedido": [item.to_dict() for item in self.itempedido]
+        }

@@ -12,6 +12,7 @@ class Usuario(db.Model):
     cep = db.Column(db.String(10))
     senha_hash = db.Column(db.String(225))
     perfil = db.Column(db.Enum(Perfil), nullable=False, default=Perfil.CLIENTE)
+    pontos = db.Column(db.Integer)
 
     funcionarios = db.relationship(
         "Funcionario", 

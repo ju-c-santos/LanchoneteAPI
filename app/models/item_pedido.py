@@ -27,3 +27,12 @@ class ItemPedido(db.Model):
         "Estoque",
         back_populates="itempedido"
     )
+
+
+    def to_dict(self):
+        return {
+            "estoque_id": self.estoque_id,
+            "quantidade": self.quantidade,
+            "preco": self.preco,
+            "subtotal": self.subtotal
+        }

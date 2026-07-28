@@ -8,6 +8,7 @@ from app.routes.register_admin_route import admin_bp
 from app.routes.unidade_register_route import unidade_bp
 from app.routes.estoque_route import estoque_bp
 from app.routes.produto_route import produto_bp
+from app.routes.pedidos_route import pedido_bp
 
 
 
@@ -40,7 +41,7 @@ def create_app():
     app.register_blueprint(unidade_bp)
     app.register_blueprint(produto_bp)
     app.register_blueprint(estoque_bp)
-
+    app.register_blueprint(pedido_bp)
 
 
     return app
