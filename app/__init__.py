@@ -10,6 +10,7 @@ from app.routes.estoque_route import estoque_bp
 from app.routes.produto_route import produto_bp
 
 
+
 jwt = JWTManager()
 
 def create_app():
@@ -20,6 +21,10 @@ def create_app():
     from app.models.cliente import Cliente
     from app.models.estoque import Estoque
     from app.models.produto import Produto
+    from app.models.metodo_pagamento import MetodoPagamento
+    from app.models.status import Status
+    from app.models.item_pedido import ItemPedido
+    from app.models.pedido import Pedido
 
     app = Flask(__name__)
     app.config.from_object('app.config.Config')
@@ -35,6 +40,7 @@ def create_app():
     app.register_blueprint(unidade_bp)
     app.register_blueprint(produto_bp)
     app.register_blueprint(estoque_bp)
+
 
 
     return app

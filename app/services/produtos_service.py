@@ -4,7 +4,7 @@ from app.repositories.produto_repository import ProdutoRepository
 class ProdutoService:
 
     @staticmethod
-    def  novoProduto(dados):
+    def novoProduto(dados):
         produto_exists = ProdutoRepository.chase_by_name(dados['nome'])
         if produto_exists:
             raise ValueError("Produto já existente")

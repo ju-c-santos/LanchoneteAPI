@@ -25,8 +25,21 @@ class EstoqueRepository:
         return Estoque.query.filter_by(unidade)
 
     @staticmethod
-    def update():
+    def update_activity(estoque_id: int, bolvalue):
+        item = Estoque.query.get(estoque_id)
+        item.is_active = bolvalue
         db.session.commit()
+        return "Valor atualizado com sucesso!"
+
+    @staticmethod
+    def update_quantity(estoque_id:int, qtd):
+    #serão informados o id do item em estoque e a quantidade a ser RETIRADA    
+        item = Estoque.query.get(estoque_id)
+        item.quantidade = (qtd - item.quantidade)
+        if item.quantidade < 0:
+            item.is_active = False
+        db.session.commit()
+        return True
 
     @staticmethod
     def delete(estoque_id:int):

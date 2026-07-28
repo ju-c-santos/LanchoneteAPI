@@ -17,6 +17,7 @@ class Estoque(db.Model):
     categoria = db.Column(db.String(150), nullable=False)
     quantidade = db.Column(db.Integer, nullable=False)
     preco = db.Column(db.Float, nullable=False)
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
 
     produtos = db.relationship(
         "Produto",
@@ -29,3 +30,9 @@ class Estoque(db.Model):
         uselist=False
     )
 
+    itempedido = db.relationship(
+        "ItemPedido",
+        back_populates="estoque",
+        cascade="all, delete-orphan",
+        passive_deletes = True
+    )

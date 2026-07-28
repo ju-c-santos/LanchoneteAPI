@@ -25,5 +25,11 @@ class Unidade(db.Model):
         cascade = "all, delete-orphan",
         passive_deletes = True
     )
-    
+
+    pedido = db.relationship(
+        "Pedido",
+        back_populates="unidade",
+        cascade= "all, delete-orphan",
+        passive_deletes=True
+    )
     

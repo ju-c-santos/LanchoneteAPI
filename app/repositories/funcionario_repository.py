@@ -20,9 +20,7 @@ class FuncionarioRepository:
         return Funcionario.query.all()
     
     #atualizar
-    @staticmethod
-    def update():
-        db.session.commit()
+    
 
     #excluir
     @staticmethod

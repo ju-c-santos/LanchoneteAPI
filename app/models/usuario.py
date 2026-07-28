@@ -1,6 +1,5 @@
 from app.database import db
 from app.models.perfil import Perfil
-from app.models.funcionario import Funcionario
 
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
@@ -28,4 +27,11 @@ class Usuario(db.Model):
         uselist=False,
         cascade = "all, delete-orphan",
         passive_deletes = True
+    )
+
+    pedido = db.relationship(
+        "Pedido",
+        back_populates="usuarios",
+        cascade = "all, delete-orphan",
+        passive_deletes= True
     )
