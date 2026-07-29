@@ -6,4 +6,3 @@ class MetodoPagamento(enum.Enum):
     CREDITO= "CREDITO"
     PIX = "PIX"
     VALE = "VALE"
-    

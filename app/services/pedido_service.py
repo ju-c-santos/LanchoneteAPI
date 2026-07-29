@@ -1,6 +1,4 @@
 from app.models.pedido import Pedido
-from app.models.status import Status
-from app.models.metodo_pagamento import MetodoPagamento
 from app.models.item_pedido import ItemPedido
 from app.repositories.pedido_repository import PedidoRepository
 from app.repositories.estoque_repository import EstoqueRepository
@@ -18,7 +16,6 @@ class PedidoService:
             unidade_id = dados['unidade_id'],
             observacao = dados['observacao'],
             data_pedido = datetime.now(),
-            metodo_pagamento = MetodoPagamento[dados['metodo_pagamento']]
         )
 
         total = 0

@@ -9,6 +9,7 @@ from app.routes.unidade_register_route import unidade_bp
 from app.routes.estoque_route import estoque_bp
 from app.routes.produto_route import produto_bp
 from app.routes.pedidos_route import pedido_bp
+from app.routes.pagamento_route import pagamento_bp
 
 
 
@@ -26,6 +27,7 @@ def create_app():
     from app.models.status import Status
     from app.models.item_pedido import ItemPedido
     from app.models.pedido import Pedido
+    from app.models.pagamento import Pagamento
 
     app = Flask(__name__)
     app.config.from_object('app.config.Config')
@@ -42,6 +44,6 @@ def create_app():
     app.register_blueprint(produto_bp)
     app.register_blueprint(estoque_bp)
     app.register_blueprint(pedido_bp)
-
+    app.register_blueprint(pagamento_bp)
 
     return app

@@ -1,6 +1,5 @@
 from app.database import db
 from app.models.status import Status
-from app.models.metodo_pagamento import MetodoPagamento
 
 class Pedido(db.Model):
     __tablename__="pedido"
@@ -20,7 +19,6 @@ class Pedido(db.Model):
     data_pedido = db.Column(db.DateTime, nullable=False)
     observacao = db.Column(db.Text)
     total = db.Column(db.Float, nullable=False)
-    metodo_pagamento = db.Column(db.Enum(MetodoPagamento), nullable=False, default=MetodoPagamento.DINHEIRO)
 
     usuarios = db.relationship(
         "Usuario",
@@ -39,6 +37,11 @@ class Pedido(db.Model):
         passive_deletes = True
     )
 
+    pagamento = db.relationship(
+        "Pagamento",
+        back_populates='pedido'
+    )
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -46,6 +49,5 @@ class Pedido(db.Model):
             "status": self.status.value,
             "total": self.total,
             "observacao": self.observacao,
-            "metodo_pagamento": self.metodo_pagamento.value,
             "itempedido": [item.to_dict() for item in self.itempedido]
         }
