@@ -18,7 +18,7 @@ class Pedido(db.Model):
     status = db.Column(db.Enum(Status), nullable=False, default=Status.AGUARDANDO_PAGAMENTO)
     data_pedido = db.Column(db.DateTime, nullable=False)
     observacao = db.Column(db.Text)
-    total = db.Column(db.Float, nullable=False)
+    total = db.Column(db.Numeric(10,2), nullable=False)
     volume = db.Column(db.Integer, nullable=False)
     entrega = db.Column(db.Boolean, nullable=False, default=False)
     

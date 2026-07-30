@@ -35,7 +35,7 @@ class EstoqueRepository:
     def update_quantity(estoque_id:int, qtd):
     #serão informados o id do item em estoque e a quantidade a ser RETIRADA    
         item = Estoque.query.get(estoque_id)
-        item.quantidade = (qtd - item.quantidade)
+        item.quantidade -= qtd
         if item.quantidade < 0:
             item.is_active = False
         db.session.commit()

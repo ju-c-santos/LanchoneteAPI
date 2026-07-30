@@ -47,21 +47,21 @@ def pedido_entrega(id):
     except Exception as e:
         return jsonify({"erro":str(e)}), 400
 
-@pedido_bp.patch("/<int:id>/status/entrega")
+@pedido_bp.patch("/<int:id>/status/finalizar")
 @perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR")
 def finalizar(id):
     try:
         usuario_id = get_jwt_identity()
-        PedidoService.finalizar(usuario_id, id)
+        PedidoService.finalizar(id)
         return jsonify({"msg":"Pedido Finalizado"}), 200
     except Exception as e:
         return jsonify({"erro":str(e)}), 400
 
-@pedido_bp.patch("/<int:id>/status/entrega")
+@pedido_bp.patch("/<int:id>/status/cancelar")
 @perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR")
 def cancelar(id):
     try:
         PedidoService.cancelar(id)
-        return jsonify({"msg":"Aguardando entregador"}), 200
+        return jsonify({"msg":"Pedido cancelado"}), 200
     except Exception as e:
         return jsonify({"erro":str(e)}), 400
