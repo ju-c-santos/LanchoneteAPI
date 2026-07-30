@@ -15,7 +15,7 @@ class PagamentoService:
         if pedido is None:
             raise ValueError("Pedido inexistente")
 
-        metodo = MetodoPagamento[dados["metodo"]]
+        metodo = MetodoPagamento(dados["metodo"])
         #validando pedido
         if metodo == MetodoPagamento.PIX:
             aprovado = True
@@ -25,7 +25,7 @@ class PagamentoService:
             aprovado = random.choice([True, False])
 
         if aprovado:
-            pedido.status = Status.AGUARDANDO_CONFIRMAÇAO
+            pedido.status = Status.AGUARDANDO_CONFIRMACAO
         else:
             pedido.status = Status.PAGAMENTO_RECUSADO
 
@@ -38,4 +38,5 @@ class PagamentoService:
         )
         PedidoRepository.update()
         return PagamentoRepository.save(pagamento)
+         
         

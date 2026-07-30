@@ -4,7 +4,7 @@ from app.util.decorator_perfil import perfil_required
 
 estoque_bp = Blueprint('estoque', __name__)
 
-@estoque_bp.route('/admin/add/estoque', methods=['POST'])
+@estoque_bp.route('/admin/atualize/estoque', methods=['POST'])
 @perfil_required("GERENCIA", "ADMINISTRADOR")
 def add_to_estoque():
     try:

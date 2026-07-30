@@ -1,4 +1,5 @@
 from app.models.pedido import Pedido
+from app.repositories.usuario_repository import UsuarioRepository
 from app.models.status import Status
 from app.database import db
 
@@ -38,6 +39,13 @@ class PedidoRepository:
         pedido.status = statusnew
         db.session.commit()
         return True
+
+    @staticmethod
+    def update_pontos(usuario_id: int, qtd_pontos):
+        usuario = UsuarioRepository.chase_by_id(usuario_id)
+        usuario.pontos += qtd_pontos
+        db.session.commit()
+        return f'Você recebeu {qtd_pontos} pontos por esta compra!'
 
     @staticmethod
     def delete(pedido_id:int):

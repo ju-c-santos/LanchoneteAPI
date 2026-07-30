@@ -16,6 +16,7 @@ from app.routes.pagamento_route import pagamento_bp
 jwt = JWTManager()
 
 def create_app():
+    from app.models.pontos import Pontos
     from app.models.funcionario import Funcionario
     from app.models.usuario import Usuario
     from app.models.unidade import Unidade

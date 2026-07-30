@@ -4,7 +4,7 @@ from app.util.decorator_perfil import perfil_required
 
 produto_bp = Blueprint('produto', __name__)
 
-@produto_bp.route('/register/admin/produto', methods=['POST'])
+@produto_bp.route('/admin/register/produto', methods=['POST'])
 @perfil_required("GERENCIA", "ADMINISTRADOR")
 def add_produto():
     try:

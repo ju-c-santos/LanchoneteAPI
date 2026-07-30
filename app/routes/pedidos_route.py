@@ -17,3 +17,51 @@ def criar_pedido():
         return jsonify({"erro": str(erro)}), 400
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
+
+
+#ROTAS PARA ALTERAÇÃO DE STATUS
+@pedido_bp.patch("/<int:id>/status/aceitar")
+@perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR")
+def aceitar_pedido(id):
+    try:
+        PedidoService.preparar_pedido(id)
+        return jsonify({"msg":"Pedido em preparo"}), 200
+    except Exception as e:
+        return jsonify({"erro":str(e)}), 400
+
+@pedido_bp.patch("/<int:id>/status/pronto")
+@perfil_required("COZINHEIRO", "GERENCIA", "ADMINISTRADOR")
+def pedido_pronto(id):
+    try:
+        PedidoService.pedido_pronto(id)
+        return jsonify({"msg":"Pedido pronto"}), 200
+    except Exception as e:
+        return jsonify({"erro":str(e)}), 400
+
+@pedido_bp.patch("/<int:id>/status/entrega")
+@perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR")
+def pedido_entrega(id):
+    try:
+        PedidoService.aguardando_entregador(id)
+        return jsonify({"msg":"Aguardando entregador"}), 200
+    except Exception as e:
+        return jsonify({"erro":str(e)}), 400
+
+@pedido_bp.patch("/<int:id>/status/entrega")
+@perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR")
+def finalizar(id):
+    try:
+        usuario_id = get_jwt_identity()
+        PedidoService.finalizar(usuario_id, id)
+        return jsonify({"msg":"Pedido Finalizado"}), 200
+    except Exception as e:
+        return jsonify({"erro":str(e)}), 400
+
+@pedido_bp.patch("/<int:id>/status/entrega")
+@perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR")
+def cancelar(id):
+    try:
+        PedidoService.cancelar(id)
+        return jsonify({"msg":"Aguardando entregador"}), 200
+    except Exception as e:
+        return jsonify({"erro":str(e)}), 400

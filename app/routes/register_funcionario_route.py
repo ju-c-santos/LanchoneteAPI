@@ -4,7 +4,7 @@ from app.util.decorator_perfil import perfil_required
 
 funcionario_bp = Blueprint('funcionarios', __name__)
 
-@funcionario_bp.route('/register/funcionarios', methods=['POST'])
+@funcionario_bp.route('/admin/register/funcionarios', methods=['POST'])
 @perfil_required("GERENCIA", "ADMINISTRADOR")
 def register_funcionario():
     try:

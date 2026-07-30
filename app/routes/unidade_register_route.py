@@ -4,7 +4,7 @@ from app.util.decorator_perfil import perfil_required
 
 unidade_bp = Blueprint('unidade', __name__)
 
-@unidade_bp.route('/register/admin/unidade', methods=['POST'])
+@unidade_bp.route('/admin/register/unidade', methods=['POST'])
 @perfil_required("ADMINISTRADOR")
 def unidade_register():
     try:

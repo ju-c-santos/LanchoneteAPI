@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required
 
 admin_bp = Blueprint('admin', __name__)
 
-@admin_bp.route('/register/funcionarios/admin', methods=['POST'])
+@admin_bp.route('/admin/register', methods=['POST'])
 @jwt_required("ADMINISTRADOR")
 def reigster_admin():
     try:

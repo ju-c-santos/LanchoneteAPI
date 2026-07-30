@@ -19,7 +19,9 @@ class Pedido(db.Model):
     data_pedido = db.Column(db.DateTime, nullable=False)
     observacao = db.Column(db.Text)
     total = db.Column(db.Float, nullable=False)
-
+    volume = db.Column(db.Integer, nullable=False)
+    entrega = db.Column(db.Boolean, nullable=False, default=False)
+    
     usuarios = db.relationship(
         "Usuario",
         back_populates= "pedido",
