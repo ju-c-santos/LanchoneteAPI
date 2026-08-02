@@ -1,3 +1,4 @@
+from werkzeug.security import generate_password_hash
 from app.models.usuario import Usuario
 from app.database import db
 
@@ -31,6 +32,34 @@ class UsuarioRepository:
     @staticmethod
     def update():
         db.session.commit()
+
+    @staticmethod
+    def update_email(usuario_id:int, newEmail:str):
+        usuario = Usuario.query.get(usuario_id)
+        usuario.email = newEmail
+        db.session.commit()
+        return usuario
+
+    @staticmethod
+    def update_tefefone(usuario_id:int, newTel:str):
+        usuario = Usuario.query.get(usuario_id)
+        usuario.telefone = newTel
+        db.session.commit()
+        return usuario
+
+    @staticmethod
+    def update_cep(usuario_id:int, newCep:str):
+        usuario = Usuario.query.get(usuario_id)
+        usuario.cep = newCep
+        db.session.commit()
+        return usuario
+
+    @staticmethod
+    def update_senha(usuario_id:int, newSenha:str):
+        usuario = Usuario.query.get(usuario_id)
+        usuario.senha_hash = generate_password_hash(newSenha)
+        db.session.commit()
+        return usuario
 
     #excluir *****
     @staticmethod

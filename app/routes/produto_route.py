@@ -33,4 +33,4 @@ def alterar_preco(produto_id):
             "novo_valor": produto.preco
         }), 200
     except Exception as e:
-        return jsonify({"erro":str(e)})
+        return jsonify({"erro":str(e)}), 400 
