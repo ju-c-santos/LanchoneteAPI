@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.services.estoque_service import EstoqueService
 from app.util.decorator_perfil import perfil_required
+from flask_jwt_extended import get_jwt_identity
 
 estoque_bp = Blueprint('estoque', __name__)
 
@@ -21,3 +22,17 @@ def add_to_estoque():
         return jsonify({"erro": str(erro)}), 400
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
+
+
+@estoque_bp.patch('/admin/atualize/is_active/<int:estoque_id>')
+@perfil_required("ADMINISTRADOR")
+def atualizar_disponibilidade(estoque_id):
+    try:
+        usuario_logado = int(get_jwt_identity())
+        produto = EstoqueService.alterar_disponibilidade(usuario_logado, estoque_id)
+        return jsonify({
+            "id_produto": produto.id_produto,
+            "is_active": produto.is_active
+        }), 200
+    except Exception as e:
+        return jsonify({"erro":str(e)}), 400

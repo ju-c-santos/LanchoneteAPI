@@ -27,9 +27,8 @@ def register_funcionario():
 @perfil_required("ADMINISTRADOR")
 def alterar_cargo(funcionario_id):
     try:
-        usuario_id = get_jwt_identity()
         dados = request.get_json()
-        funcionario = RegisterServiceFuncionario.alterar_cargo(funcionario_id, usuario_id, dados)
+        funcionario = RegisterServiceFuncionario.alterar_cargo(funcionario_id, dados)
         return jsonify({
             "usuario_id": funcionario.usuario_id,
             "cargo": funcionario.cargo

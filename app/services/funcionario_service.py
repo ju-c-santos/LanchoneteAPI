@@ -27,16 +27,16 @@ class RegisterServiceFuncionario:
 
 
     @staticmethod
-    def alterar_cargo(funcionario_id, usuarios_id, dados):
+    def alterar_cargo(funcionario_id, dados):
         funcionario = FuncionarioRepository.chase_by_id(funcionario_id)
         if funcionario is None:
             raise ValueError("Funcionário não encontrado")
-        usuario = UsuarioRepository.chase_by_id(usuarios_id)
+        usuario = funcionario.usuario_id
         cargo = dados['novo_cargo'].upper()
         if Perfil[cargo] not in Perfil:
             raise ValueError("Cargo inexistente")
         FuncionarioRepository.update_cargo(funcionario_id, cargo)
-        UsuarioRepository.update_perfil(usuario.id, Perfil[cargo])
+        UsuarioRepository.update_perfil(usuario, Perfil[cargo])
         return funcionario
 
     @staticmethod

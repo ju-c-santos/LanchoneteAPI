@@ -24,12 +24,13 @@ class EstoqueRepository:
     def show_by_unidade(unidade: int):
         return Estoque.query.filter_by(unidade)
 
+    #alterar a disponibilidade do produto em determinada unidade
     @staticmethod
     def update_activity(estoque_id: int, bolvalue):
         item = Estoque.query.get(estoque_id)
         item.is_active = bolvalue
         db.session.commit()
-        return "Valor atualizado com sucesso!"
+        return item
 
     @staticmethod
     def update_quantity(estoque_id:int, qtd):

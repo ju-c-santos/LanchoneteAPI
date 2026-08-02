@@ -13,6 +13,10 @@ class FuncionarioRepository:
     @staticmethod
     def chase_by_id(funcionario_id: int):
         return Funcionario.query.get(funcionario_id)
+
+    @staticmethod
+    def chase_by_usuario(usuario_id:int):
+        return Funcionario.query.filter_by(usuario_id=usuario_id).first()
     
     #mostrando
     @staticmethod
