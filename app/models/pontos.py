@@ -19,7 +19,7 @@ class Pontos(db.Model):
 
     pontos = db.Column(db.Integer, nullable=False)
 
-    usuario = db.relationship(
+    usuarios = db.relationship(
         "Usuario",
         back_populates="pontos"
     )

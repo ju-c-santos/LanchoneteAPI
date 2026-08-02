@@ -16,3 +16,9 @@ class Produto(db.Model):
         cascade = "all, delete-orphan",
         passive_deletes = True
     )
+    historico_preco = db.relationship(
+            "HistoricoPreco",
+            back_populates= "produtos",
+            cascade = "all, delete-orphan",
+            passive_deletes = True
+        )

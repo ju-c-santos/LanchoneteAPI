@@ -30,6 +30,7 @@ def create_app():
     from app.models.pedido import Pedido
     from app.models.pagamento import Pagamento
     from app.models.local_pedido import LocalPedido
+    from app.models.historico_preco import HistoricoPreco
 
     app = Flask(__name__)
     app.config.from_object('app.config.Config')

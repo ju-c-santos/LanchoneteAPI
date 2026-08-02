@@ -1,6 +1,9 @@
 from flask import Blueprint, request, jsonify
 from app.services.produtos_service import ProdutoService
+from app.repositories.historico_preco_repository import HistoricoPrecoRepository
 from app.util.decorator_perfil import perfil_required
+from flask_jwt_extended import get_jwt_identity
+
 
 produto_bp = Blueprint('produto', __name__)
 
@@ -22,15 +25,39 @@ def add_produto():
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
 
+#ATERACAO DE PREÇO
 @produto_bp.patch("/admin/produto/<int:produto_id>/valor")
 @perfil_required("ADMINISTRADOR")
 def alterar_preco(produto_id):
     try:
+        usuario_id = int(get_jwt_identity())
         dados = request.get_json()
-        produto = ProdutoService.alterarValor(produto_id, dados)
+        produto = ProdutoService.alterarValor(produto_id, usuario_id, dados)
         return jsonify({
             "produto_id": produto_id,
             "novo_valor": produto.preco
         }), 200
     except Exception as e:
         return jsonify({"erro":str(e)}), 400 
+
+
+@produto_bp.get('/funcionarios/precos/alteracoes')
+@perfil_required("COZINHEIRO", "ATENDENTE", "GERENCIA", "ADMINISTRADOR")
+def listar_alteracoes_preco():
+    try:
+        registros = HistoricoPrecoRepository.listar_recentes()
+        return jsonify([
+            {
+                "id": registro.id,
+                "produto_id": registro.produto_id,
+                "produtos": registro.produtos.nome,
+                "preco_anterior": float(registro.preco_anterior),
+                "preco_novo": float(registro.preco_novo),
+                "alterado_por": registro.usuario_id,
+                "data_alteracao": registro.data_alteracao.isoformat()
+            }
+            for registro in registros
+        ]), 200
+    except Exception as e:
+        return jsonify({"erro":str(e)}), 400 
+

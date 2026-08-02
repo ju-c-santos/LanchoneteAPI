@@ -38,7 +38,14 @@ class Usuario(db.Model):
 
     pontos = db.relationship(
         "Pontos",
-        back_populates="usuario",
+        back_populates="usuarios",
+        cascade = "all, delete-orphan",
+        passive_deletes = True
+    )
+
+    historico_preco = db.relationship(
+        "HistoricoPreco",
+        back_populates= "usuarios",
         cascade = "all, delete-orphan",
         passive_deletes = True
     )

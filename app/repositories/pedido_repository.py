@@ -1,6 +1,7 @@
 from app.models.pedido import Pedido
 from app.repositories.usuario_repository import UsuarioRepository
 from app.models.status import Status
+from datetime import datetime, time
 from app.database import db
 
 class PedidoRepository:
@@ -16,16 +17,30 @@ class PedidoRepository:
         return Pedido.query.get(pedido_id)
 
     @staticmethod
-    def show():
-        return Pedido.query.all()
+    def show_by_usuario(usuario_id:int):
+        return Pedido.query.filter_by(usuario_id=usuario_id).order_by(Pedido.data_pedido.desc()).all()
 
     @staticmethod
-    def show_by_date(data_pedido:str):
-        return Pedido.query.filter_by(data_pedido=data_pedido).all()
+    def show_today_all():
+        inicio = datetime.combine(datetime.today(), time.min)
+        fim = datetime.combine(datetime.today(), time.max)
+        return (
+            Pedido.query.filter(
+                Pedido.data_pedido.between(inicio, fim)
+            ).all()
+        )
 
     @staticmethod
-    def show_by_metodopg(metodo_pagamento:str):
-        return Pedido.query.filter_by(metodo_pagamento=metodo_pagamento).all()
+    def show_today():
+        inicio = datetime.combine(datetime.today(), time.min)
+        fim = datetime.combine(datetime.today(), time.max)
+        return (
+            Pedido.query.filter(
+                Pedido.data_pedido.between(inicio, fim),
+                Pedido.status != Status.FINALIZADO,
+                Pedido.status != Status.CANCELADO
+            ).all()
+        )
 
     @staticmethod
     def update():

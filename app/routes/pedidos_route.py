@@ -51,7 +51,6 @@ def pedido_entrega(id):
 @perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR")
 def finalizar(id):
     try:
-        usuario_id = get_jwt_identity()
         PedidoService.finalizar(id)
         return jsonify({"msg":"Pedido Finalizado"}), 200
     except Exception as e:
@@ -65,3 +64,64 @@ def cancelar(id):
         return jsonify({"msg":"Pedido cancelado"}), 200
     except Exception as e:
         return jsonify({"erro":str(e)}), 400
+
+#ROTAS PARA RETORNO
+#para o usuario
+@pedido_bp.get('/login/pedidos/historico')
+@perfil_required('CLIENTE')
+def historico_cliente():
+    try:
+        usuario_id = int(get_jwt_identity())
+        pedidos = PedidoService.historico_pedidos_all(usuario_id)
+        return jsonify({
+            "quantidade": len(pedidos),
+            "pedidos": pedidos
+        }), 200
+    except ValueError as erro:
+        return jsonify({"erro": str(erro)}), 400
+    except Exception as erro:
+        return jsonify({"erro": str(erro)}), 500    
+
+
+#rota para administradores
+@pedido_bp.get('/admin/pedidos/historico/<int:usuario_id>')
+@perfil_required('ADMINISTRADOR', 'GERENCIA')
+def historico_cliente_adm(usuario_id):
+    try:
+        pedidos = PedidoService.historico_pedidos_all(usuario_id)
+        return jsonify({
+            "quantidade": len(pedidos),
+            "pedidos": pedidos
+        }), 200
+    except ValueError as erro:
+        return jsonify({"erro": str(erro)}), 400
+    except Exception as erro:
+        return jsonify({"erro": str(erro)}), 500    
+
+#listaem de pedidos do dia atual
+@pedido_bp.get('/admin/pedidos')
+@perfil_required('ADMINISTRADOR', 'GERENCIA')
+def pedidos_hoje():
+    try:
+        pedidos = PedidoService.listar_pedidos_hoje()
+        return jsonify([
+            pedido.to_dict() for pedido in pedidos 
+        ]), 200
+    except ValueError as erro:
+        return jsonify({"erro": str(erro)}), 400
+    except Exception as erro:
+        return jsonify({"erro": str(erro)}), 500    
+
+@pedido_bp.get('/funcionarios/pedidos/em_aberto')
+@perfil_required('ADMINISTRADOR', 'GERENCIA', 'ATENDENTE', 'COZINHEIRO')
+def pedidos_abertos():
+    try:
+        pedidos = PedidoService.listar_pedidos_abertos()
+        return jsonify([
+            pedido.to_dict() for pedido in pedidos 
+        ]), 200
+    except ValueError as erro:
+        return jsonify({"erro": str(erro)}), 400
+    except Exception as erro:
+        return jsonify({"erro": str(erro)}), 500    
+

@@ -15,8 +15,6 @@ class PedidoService:
 
     @staticmethod
     def criar_pedido(id, dados):
-        if dados['observacao'] is '':
-            dados['observacao'] = 'None'
         if dados['entrega'] == None:
             dados['entrega'] = False
         volume = len(dados['itempedido'])
@@ -101,7 +99,7 @@ class PedidoService:
             raise ValueError("Pedido não encontrado")
         if pedido.entrega and pedido.status != Status.AGUARDANDO_ENTREGADOR:
             raise ValueError("Pedido não foi entregue")
-        if pedido.status not in [Status.PRONTO or Status.AGUARDANDO_ENTREGADOR]:
+        if pedido.status not in [Status.PRONTO, Status.AGUARDANDO_ENTREGADOR]:
             raise ValueError("Status inválido")
         pedido.status = Status.FINALIZADO
         usuario = PontosRepository.chase_by_id(pedido.usuario_id)
@@ -129,4 +127,18 @@ class PedidoService:
         pedido.status = Status.CANCELADO
         PedidoRepository.update()
         return pedido
-    
+
+
+    @staticmethod
+    def historico_pedidos_all(usuario_id):
+        pedidos = PedidoRepository.show_by_usuario(usuario_id)
+        return [pedido.to_dict() for pedido in pedidos]
+
+
+    @staticmethod
+    def listar_pedidos_hoje():
+        return PedidoRepository.show_today_all()
+
+    @staticmethod
+    def listar_pedidos_abertos():
+        return PedidoRepository.show_today()
