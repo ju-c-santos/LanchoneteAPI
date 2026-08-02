@@ -26,6 +26,13 @@ class ProdutoRepository:
         db.session.commit()
 
     @staticmethod
+    def update_value(produto_id: int, newValue: float):
+        produto = Produto.query.get(produto_id)
+        produto.preco = newValue
+        db.session.commit()
+        return produto
+
+    @staticmethod
     def delete(produto_id: int):
         produto = db.session.get(Produto, produto_id)
         if produto is None:

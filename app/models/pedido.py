@@ -1,5 +1,6 @@
 from app.database import db
 from app.models.status import Status
+from app.models.local_pedido import LocalPedido
 
 class Pedido(db.Model):
     __tablename__="pedido"
@@ -21,6 +22,7 @@ class Pedido(db.Model):
     total = db.Column(db.Numeric(10,2), nullable=False)
     volume = db.Column(db.Integer, nullable=False)
     entrega = db.Column(db.Boolean, nullable=False, default=False)
+    local_pedido = db.Column(db.Enum(LocalPedido), nullable=False, default=LocalPedido.BALCAO)
     
     usuarios = db.relationship(
         "Usuario",
@@ -51,5 +53,8 @@ class Pedido(db.Model):
             "status": self.status.value,
             "total": self.total,
             "observacao": self.observacao,
+            "local_pedido": self.local_pedido.value,
+            "data_pedido": self.data_pedido.isoformat(),
+            "entrega": self.entrega,
             "itempedido": [item.to_dict() for item in self.itempedido]
         }

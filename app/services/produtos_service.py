@@ -15,3 +15,12 @@ class ProdutoService:
             descricao = dados['descricao']
         )
         return ProdutoRepository.save(produto)
+
+    @staticmethod
+    def alterarValor(produto_id, dados):
+        produto = ProdutoRepository.chase_by_id(produto_id)
+        if produto is None: 
+            raise ValueError("Produto não encontrado")
+        novo_valor = float(dados['novo_valor'])
+        item = ProdutoRepository.update_value(produto_id, novo_valor)
+        return item

@@ -41,13 +41,6 @@ class PedidoRepository:
         return True
 
     @staticmethod
-    def update_pontos(usuario_id: int, qtd_pontos):
-        usuario = UsuarioRepository.chase_by_id(usuario_id)
-        usuario.pontos += qtd_pontos
-        db.session.commit()
-        return f'Você recebeu {qtd_pontos} pontos por esta compra!'
-
-    @staticmethod
     def delete(pedido_id:int):
         pedido = db.session.get(Pedido, pedido_id)
         if pedido is None:

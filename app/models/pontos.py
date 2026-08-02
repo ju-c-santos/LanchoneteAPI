@@ -18,5 +18,8 @@ class Pontos(db.Model):
     )
 
     pontos = db.Column(db.Integer, nullable=False)
-    utilizado = db.Column(db.Boolean, default=False)
-    data = db.Column(db.DateTime, nullable = False)
+
+    usuario = db.relationship(
+        "Usuario",
+        back_populates="pontos"
+    )

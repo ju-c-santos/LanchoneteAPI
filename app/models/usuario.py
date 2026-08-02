@@ -12,7 +12,6 @@ class Usuario(db.Model):
     cep = db.Column(db.String(10))
     senha_hash = db.Column(db.String(225))
     perfil = db.Column(db.Enum(Perfil), nullable=False, default=Perfil.CLIENTE)
-    pontos = db.Column(db.Integer, default= 0)
 
     funcionarios = db.relationship(
         "Funcionario", 
@@ -35,4 +34,11 @@ class Usuario(db.Model):
         back_populates="usuarios",
         cascade = "all, delete-orphan",
         passive_deletes= True
+    )
+
+    pontos = db.relationship(
+        "Pontos",
+        back_populates="usuario",
+        cascade = "all, delete-orphan",
+        passive_deletes = True
     )
