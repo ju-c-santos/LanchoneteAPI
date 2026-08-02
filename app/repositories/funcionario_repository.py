@@ -20,8 +20,24 @@ class FuncionarioRepository:
         return Funcionario.query.all()
     
     #atualizar
-    
+    @staticmethod
+    def update_cargo(funcionario_id:int, newcargo:str):
+        funcionario = Funcionario.query.get(funcionario_id)
+        if funcionario is None:
+            raise ValueError("Funcinario inexistente")
+        funcionario.cargo = newcargo
+        db.session.commit()
+        return funcionario 
 
+    @staticmethod
+    def updade_unidade(funcionario_id: int, unidade_id:int):
+        funcionario = Funcionario.query.get(funcionario_id)
+        if funcionario is None:
+            raise ValueError("Funcinario inexistente")
+        funcionario.unidade_id = unidade_id
+        db.session.commit()
+        return funcionario
+        
     #excluir
     @staticmethod
     def delete(funcionario_id: int):

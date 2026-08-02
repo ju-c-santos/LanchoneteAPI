@@ -8,4 +8,4 @@ class Status(enum.Enum):
     PAGAMENTO_RECUSADO = "PAGAMENTO_RECUSADO"
     PRONTO = "PRONTO" 
     FINALIZADO = "FINALIZADO" #06
-    CANCELADO = "CANCELADO" #vai pedir o motivo do cancelamento
+    CANCELADO = "CANCELADO" 

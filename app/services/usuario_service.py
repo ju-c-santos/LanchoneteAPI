@@ -62,4 +62,3 @@ class AuthServiceUsuario:
         else:
             raise ValueError('Não é possível alterar esta informação')
         return valor
-        

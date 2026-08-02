@@ -61,6 +61,15 @@ class UsuarioRepository:
         db.session.commit()
         return usuario
 
+    @staticmethod
+    def update_perfil(usuario_id:int, newPerfil:str):
+        usuario = Usuario.query.get(usuario_id)
+        if usuario is None:
+            raise ValueError("Usuário inexistente")
+        usuario.perfil = newPerfil
+        db.session.commit()
+        return usuario
+
     #excluir *****
     @staticmethod
     def delete(usuario_id: int):
