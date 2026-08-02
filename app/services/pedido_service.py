@@ -7,6 +7,8 @@ from app.repositories.pedido_repository import PedidoRepository
 from app.repositories.estoque_repository import EstoqueRepository
 from app.repositories.pagamento_repository import PagamentoRepository
 from app.repositories.pontos_repository import PontosRepository
+from app.repositories.funcionario_repository import FuncionarioRepository
+from app.repositories.relatorio_repository import RelatorioRepository
 
 from decimal import Decimal, ROUND_HALF_UP
 from datetime import datetime
@@ -136,9 +138,26 @@ class PedidoService:
 
 
     @staticmethod
-    def listar_pedidos_hoje():
-        return PedidoRepository.show_today_all()
+    def listar_pedidos_hoje(usuario_id):
+        funcionario = FuncionarioRepository.chase_by_usuario(usuario_id)
+        return PedidoRepository.show_today_all(funcionario.unidade_id)
 
     @staticmethod
-    def listar_pedidos_abertos():
-        return PedidoRepository.show_today()
+    def total_vendido(usuario_id):
+        funcionario = FuncionarioRepository.chase_by_usuario(usuario_id)
+        return PedidoRepository.total_vendido_unidade(funcionario.unidade_id)
+
+    @staticmethod
+    def listar_pedidos_abertos(usuario_id):
+        funcionario = FuncionarioRepository.chase_by_usuario(usuario_id)
+        return PedidoRepository.show_today(funcionario.unidade_id)
+
+    @staticmethod
+    def produto_mais_vendido(usuario_id):
+        funcionario = FuncionarioRepository.chase_by_usuario(usuario_id)
+        resultado = RelatorioRepository.produto_mais_vendido_unidade(funcionario.unidade_id)
+        return {
+            "produto_id" : resultado.id,
+            "nome" : resultado.nome,
+            "total_vendido" : int(resultado.total_vendido)
+        }

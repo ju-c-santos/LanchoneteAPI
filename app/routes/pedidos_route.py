@@ -103,10 +103,16 @@ def historico_cliente_adm(usuario_id):
 @perfil_required('ADMINISTRADOR', 'GERENCIA')
 def pedidos_hoje():
     try:
-        pedidos = PedidoService.listar_pedidos_hoje()
-        return jsonify([
-            pedido.to_dict() for pedido in pedidos 
-        ]), 200
+        usuario_id = get_jwt_identity()
+        total = PedidoService.total_vendido(usuario_id)
+        mais_vendido = PedidoService.produto_mais_vendido(usuario_id)
+        pedidos = PedidoService.listar_pedidos_hoje(usuario_id)
+        return jsonify({
+            "quantidade_pedidos": len(pedidos),
+            "total_vendido": float(total),
+            "produto_mais_vendido": mais_vendido,
+            "pedidos": [pedido.to_dict() for pedido in pedidos] 
+        }), 200
     except ValueError as erro:
         return jsonify({"erro": str(erro)}), 400
     except Exception as erro:
@@ -116,7 +122,8 @@ def pedidos_hoje():
 @perfil_required('ADMINISTRADOR', 'GERENCIA', 'ATENDENTE', 'COZINHEIRO')
 def pedidos_abertos():
     try:
-        pedidos = PedidoService.listar_pedidos_abertos()
+        usuario_id = get_jwt_identity()
+        pedidos = PedidoService.listar_pedidos_abertos(usuario_id)
         return jsonify([
             pedido.to_dict() for pedido in pedidos 
         ]), 200
