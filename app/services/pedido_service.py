@@ -9,6 +9,7 @@ from app.repositories.pagamento_repository import PagamentoRepository
 from app.repositories.pontos_repository import PontosRepository
 from app.repositories.funcionario_repository import FuncionarioRepository
 from app.repositories.relatorio_repository import RelatorioRepository
+from app.services.promocao_service import PromocaoService
 
 from decimal import Decimal, ROUND_HALF_UP
 from datetime import datetime
@@ -40,17 +41,17 @@ class PedidoService:
             except ValueError:
                 return "Erro: Produto inexistente"
             if produto.is_active == False:
-                raise ValueError('Erro: Produto indisponível') 
-            valor_un = Decimal(str(produto.preco))
-            quantidade = Decimal(str(item['quantidade']))
+                raise ValueError('Erro: Produto indisponível')
+            quantidade = int(item['quantidade'])
+            valor_un = PromocaoService.calcular_preco(produto, pedido.unidade_id, quantidade)
             subtotal = (valor_un * quantidade).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
             total += subtotal
             pedido.total = total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
             novo_item = ItemPedido(
                 estoque_id = produto.id,
-                quantidade = item['quantidade'],
-                preco = produto.preco,
+                quantidade = quantidade,
+                preco = valor_un,
                 subtotal = subtotal, 
             )
             pedido.itempedido.append(novo_item)

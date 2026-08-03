@@ -10,6 +10,7 @@ from app.routes.estoque_route import estoque_bp
 from app.routes.produto_route import produto_bp
 from app.routes.pedidos_route import pedido_bp
 from app.routes.pagamento_route import pagamento_bp
+from app.routes.promocao_route import promocao_bp
 
 
 
@@ -31,6 +32,8 @@ def create_app():
     from app.models.pagamento import Pagamento
     from app.models.local_pedido import LocalPedido
     from app.models.historico_preco import HistoricoPreco
+    from app.models.descontos import TipoDesconto
+    from app.models.promocao import Promocao
 
     app = Flask(__name__)
     app.config.from_object('app.config.Config')
@@ -48,5 +51,6 @@ def create_app():
     app.register_blueprint(estoque_bp)
     app.register_blueprint(pedido_bp)
     app.register_blueprint(pagamento_bp)
+    app.register_blueprint(promocao_bp)
 
     return app

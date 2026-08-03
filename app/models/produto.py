@@ -21,4 +21,10 @@ class Produto(db.Model):
             back_populates= "produtos",
             cascade = "all, delete-orphan",
             passive_deletes = True
-        )
+    )
+    promocoes = db.relationship(
+        "Promocao",
+        back_populates="produtos",
+        cascade= "all, delete-orphan",
+        passive_deletes=True
+    )
