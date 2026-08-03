@@ -70,6 +70,8 @@ class UsuarioRepository:
         db.session.commit()
         return usuario
 
+     
+    
     #excluir *****
     @staticmethod
     def delete(usuario_id: int):

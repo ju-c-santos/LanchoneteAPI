@@ -10,6 +10,7 @@ from app.repositories.pontos_repository import PontosRepository
 from app.repositories.funcionario_repository import FuncionarioRepository
 from app.repositories.relatorio_repository import RelatorioRepository
 from app.services.promocao_service import PromocaoService
+from app.services.pontos_service import PontosService
 
 from decimal import Decimal, ROUND_HALF_UP
 from datetime import datetime
@@ -21,7 +22,8 @@ class PedidoService:
         if dados['entrega'] == None:
             dados['entrega'] = False
         volume = len(dados['itempedido'])
-        localpedido = dados['local_pedido'].upper()
+        localpedido = dados['local_pedido'].upper().strip()
+        usar_pontos = dados['usar_pontos']
         pedido = Pedido(
             usuario_id = id,
             unidade_id = dados['unidade_id'],
@@ -29,12 +31,10 @@ class PedidoService:
             data_pedido = datetime.now(),
             volume = volume, 
             entrega = dados['entrega'],
-            local_pedido = LocalPedido[localpedido]
+            local_pedido = LocalPedido[localpedido],
+            usar_pontos = usar_pontos
         )
-
         total = Decimal("0.00")
-
-
         for item in dados['itempedido']:
             try:
                 produto = EstoqueRepository.chase_by_id(item['produto_id'])
@@ -55,9 +55,15 @@ class PedidoService:
                 subtotal = subtotal, 
             )
             pedido.itempedido.append(novo_item)
-            EstoqueRepository.update_quantity(produto.id, quantidade)
-        pedido.total = total
-        return PedidoRepository.save(pedido)
+            EstoqueRepository.update_quantity_subtract(produto.id, quantidade)
+        pedido = PedidoRepository.save(pedido)
+        if usar_pontos:
+            pontos_solicitado = dados['pontos_utilizados']
+            if pontos_solicitado is None:
+                raise ValueError("Quantidade de pontos inválida")
+            PontosService.utilizar_pontos(int(id),pedido, pontos_solicitado)
+            return pedido
+        return pedido
 
 
     @staticmethod
@@ -105,18 +111,7 @@ class PedidoService:
         if pedido.status not in [Status.PRONTO, Status.AGUARDANDO_ENTREGADOR]:
             raise ValueError("Status inválido")
         pedido.status = Status.FINALIZADO
-        usuario = PontosRepository.chase_by_id(pedido.usuario_id)
-        if usuario:
-            usuario.pontos += pedido.volume
-            PontosRepository.update()
-        else:
-            novo = Pontos(
-                usuario_id = pedido.usuario_id,
-                pedido_id = id_pedido,
-                pontos = pedido.volume
-            )
-            PontosRepository.save(novo)
-        PedidoRepository.update()
+        PontosService.acumular_pontos(pedido)    
         return pedido
 
     @staticmethod
@@ -128,9 +123,13 @@ class PedidoService:
         if pagamento.aprovado == False:
             pedido.status = Status.CANCELADO
         pedido.status = Status.CANCELADO
+        for item in pedido.itempedido:
+            EstoqueRepository.update_quantity_return(item.estoque_id, item.quantidade)
         PedidoRepository.update()
         return pedido
 
+
+#SERVICES DE REQUISIÇÕES GET
 
     @staticmethod
     def historico_pedidos_all(usuario_id):

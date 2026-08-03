@@ -12,6 +12,9 @@ class Usuario(db.Model):
     cep = db.Column(db.String(10))
     senha_hash = db.Column(db.String(225))
     perfil = db.Column(db.Enum(Perfil), nullable=False, default=Perfil.CLIENTE)
+    pontos_disponivel = db.Column(db.Integer, nullable=False, default=0)
+    valor_desconto = db.Column(db.Numeric(10,2), nullable=False, default=0.00)
+    cadastro_ativo = db.Column(db.Boolean, nullable=False, default=True)
 
     funcionarios = db.relationship(
         "Funcionario", 
@@ -40,7 +43,7 @@ class Usuario(db.Model):
         "Pontos",
         back_populates="usuarios",
         cascade = "all, delete-orphan",
-        passive_deletes = True
+        passive_deletes= True
     )
 
     historico_preco = db.relationship(

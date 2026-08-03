@@ -33,9 +33,13 @@ def alterar_preco(produto_id):
         usuario_id = int(get_jwt_identity())
         dados = request.get_json()
         produto = ProdutoService.alterarValor(produto_id, usuario_id, dados)
+        item = produto["produto"]
         return jsonify({
-            "produto_id": produto_id,
-            "novo_valor": produto.preco
+            "mensagem": "Preço atualizado em todas as unidades",
+            "produto_id": item.id,
+            "produto": item.nome,
+            "novo_valor": float(item.preco),
+            "estoques_atualizados": produto["estoques_atualizados"]
         }), 200
     except Exception as e:
         return jsonify({"erro":str(e)}), 400 

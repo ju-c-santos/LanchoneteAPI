@@ -2,7 +2,10 @@ from app.models.produto import Produto
 from app.repositories.produto_repository import ProdutoRepository
 from app.models.historico_preco import HistoricoPreco
 from app.repositories.historico_preco_repository import HistoricoPrecoRepository
+from app.repositories.estoque_repository import EstoqueRepository
 from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
+from app.database import db
 
 class ProdutoService:
 
@@ -24,19 +27,25 @@ class ProdutoService:
         produto = ProdutoRepository.chase_by_id(produto_id)
         if produto is None: 
             raise ValueError("Produto não encontrado")
-        novo_valor = Decimal(str(dados['novo_valor']))
-        if novo_valor <= 0:
+        novo_valor = Decimal(str(dados['novo_valor'])).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        if novo_valor <= Decimal("0.00"):
             raise ValueError("O preço deve ser maior que zero")
-        preco_anterior = produto.preco
+            
+        preco_anterior = Decimal(str(produto.preco))
         historico = HistoricoPreco (
             produto_id = produto.id,
-            usuario_id = usuario_id,
+            usuario_id = int(usuario_id),
             preco_anterior = preco_anterior,
             preco_novo = novo_valor
         )
         HistoricoPrecoRepository.save(historico)
-        item = ProdutoRepository.update_value(produto_id, novo_valor)
-        return item
+        preco_atualizado = ProdutoRepository.update_value(produto_id, novo_valor)
+        estoque_atualizado = EstoqueRepository.update_value(produto_id, novo_valor)
+        db.session.commit()
+        return {
+            "produto": preco_atualizado,
+            "estoques_atualizados":estoque_atualizado
+        }
 
 
   

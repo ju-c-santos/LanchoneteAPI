@@ -28,8 +28,9 @@ class ProdutoRepository:
     @staticmethod
     def update_value(produto_id: int, newValue: float):
         produto = Produto.query.get(produto_id)
+        if produto is None:
+            raise ValueError("Produto inexistente")
         produto.preco = newValue
-        db.session.commit()
         return produto
 
     @staticmethod

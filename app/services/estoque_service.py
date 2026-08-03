@@ -9,9 +9,9 @@ class EstoqueService:
 
     @staticmethod
     def addProduto(dados):
-        produto_exists = ProdutoRepository.chase_by_id(dados['id_produto'])
+        produto = ProdutoRepository.chase_by_id(dados['id_produto'])
         unidade_exists = UnidadeRepository.chase_by_id(dados['id_unidade'])
-        if not(produto_exists):
+        if not(produto):
             raise ValueError("Produto inexistente")
         if not(unidade_exists):
             raise ValueError("Unidade inexistente")
@@ -24,8 +24,10 @@ class EstoqueService:
             categoria = categoria,
             preco = preco
         )
-        return EstoqueRepository.save(estoque)
-
+        item = EstoqueRepository.save(estoque)
+        if estoque.is_active == False:
+            EstoqueRepository.update_activity(estoque.id, True)
+        return item
 
     @staticmethod
     def alterar_disponibilidade(usuario_id, estoque_id):

@@ -33,14 +33,35 @@ class EstoqueRepository:
         return item
 
     @staticmethod
-    def update_quantity(estoque_id:int, qtd):
+    def update_quantity_subtract(estoque_id:int, qtd):
     #serão informados o id do item em estoque e a quantidade a ser RETIRADA    
         item = Estoque.query.get(estoque_id)
         item.quantidade -= qtd
         if item.quantidade < 0:
             item.is_active = False
         db.session.commit()
-        return True
+        return item
+
+    @staticmethod
+    def update_quantity_return(estoque_id:int, qtd):
+    #serão informados o id do item em estoque e a quantidade a ser RETORNADA    
+        item = Estoque.query.get(estoque_id)
+        if item is None:
+            raise ValueError(f"Item inexisente")
+        item.quantidade += int(qtd)
+        if item.quantidade > 0:
+            item.is_active = True
+        db.session.commit()
+        return item
+
+    @staticmethod
+    def update_value(id_produto:int, newvalue:float):
+        estoque = (Estoque.query
+        .filter(Estoque.id_produto==id_produto)
+        .update({'preco': newvalue}, 
+            synchronize_session = False)
+        )
+        return estoque
 
     @staticmethod
     def delete(estoque_id:int):

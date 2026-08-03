@@ -23,6 +23,8 @@ class Pedido(db.Model):
     volume = db.Column(db.Integer, nullable=False)
     entrega = db.Column(db.Boolean, nullable=False, default=False)
     local_pedido = db.Column(db.Enum(LocalPedido), nullable=False, default=LocalPedido.BALCAO)
+    usar_pontos = db.Column(db.Boolean, nullable=False, default=False)
+    desconto = db.Column(db.Numeric(10,2))
     
     usuarios = db.relationship(
         "Usuario",
@@ -46,6 +48,13 @@ class Pedido(db.Model):
         back_populates='pedido'
     )
 
+    pontos = db.relationship(
+        "Pontos",
+        back_populates="pedido",
+        cascade = "all, delete-orphan",
+        passive_deletes= True
+    )
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -56,5 +65,6 @@ class Pedido(db.Model):
             "local_pedido": self.local_pedido.value,
             "data_pedido": self.data_pedido.isoformat(),
             "entrega": self.entrega,
+            "usar_pontos": self.usar_pontos,
             "itempedido": [item.to_dict() for item in self.itempedido]
         }

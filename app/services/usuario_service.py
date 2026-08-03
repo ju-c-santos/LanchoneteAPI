@@ -3,6 +3,7 @@ from flask_jwt_extended import create_access_token
 
 from app.models.usuario import Usuario
 from app.repositories.usuario_repository import UsuarioRepository
+from app.repositories.pontos_repository import PontosRepository
 from app.models.perfil import Perfil
 
 class AuthServiceUsuario:
@@ -62,3 +63,9 @@ class AuthServiceUsuario:
         else:
             raise ValueError('Não é possível alterar esta informação')
         return valor
+
+
+    @staticmethod
+    def consultar_pontos(usuario_id):
+        pass
+

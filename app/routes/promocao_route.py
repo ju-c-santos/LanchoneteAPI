@@ -38,7 +38,7 @@ def listar_promocoes():
                 "id": promocao.id,
                 "nome": promocao.nome,
                 "produto_id": promocao.produto_id,
-                "produto": promocao.produto.nome,
+                "produto": promocao.produtos.nome,
                 "unidade_id": promocao.unidade_id,
                 "tipo_desconto": promocao.tipo_desconto.value,
                 "valor_desconto": float(promocao.valor_desconto),
