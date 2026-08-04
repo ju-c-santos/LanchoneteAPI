@@ -18,11 +18,6 @@ class FuncionarioRepository:
     def chase_by_usuario(usuario_id:int):
         return Funcionario.query.filter_by(usuario_id=usuario_id).first()
     
-    #mostrando
-    @staticmethod
-    def show():
-        return Funcionario.query.all()
-    
     #atualizar
     @staticmethod
     def update_cargo(funcionario_id:int, newcargo:str):
@@ -39,6 +34,13 @@ class FuncionarioRepository:
         if funcionario is None:
             raise ValueError("Funcinario inexistente")
         funcionario.unidade_id = unidade_id
+        db.session.commit()
+        return funcionario
+
+    @staticmethod  
+    def update_ferias(funcionario_id, bolv):
+        funcionario = Funcionario.query.get(funcionario_id)
+        funcionario.ferias = bolv
         db.session.commit()
         return funcionario
         

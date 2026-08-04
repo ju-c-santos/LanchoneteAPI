@@ -9,9 +9,10 @@ import uuid
 class PagamentoService:
 
     @staticmethod
-    def mock_pagamento(id_pedido, dados):
+    def mock_pagamento(id_pedido, id_usuario, dados):
         pedido = PedidoRepository.chase_by_id(id_pedido)
-
+        if pedido.usuario_id != id_usuario:
+            raise ValueError("Usuário não realizou o pedido")
         if pedido is None:
             raise ValueError("Pedido inexistente")
 

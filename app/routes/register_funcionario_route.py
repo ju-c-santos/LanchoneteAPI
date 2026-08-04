@@ -55,3 +55,40 @@ def alterar_unidade(funcionario_id):
 
     except Exception as erro:
         return jsonify({"erro": str(erro)}), 500
+
+
+@funcionario_bp.patch('/admin/funcionarios/<int:funcionario_id>/ferias/ativar')
+@perfil_required("ADMINISTRADOR")
+def ativar_ferias(funcionario_id):
+    try:
+        RegisterServiceFuncionario.update_ferias(funcionario_id, True)
+        return jsonify({
+            "mensagem": "Funcionário agora está de ferias"
+        }), 200
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 400
+
+@funcionario_bp.patch('/admin/funcionarios/<int:funcionario_id>/ferias/desativar')
+@perfil_required("ADMINISTRADOR")
+def desativar_ferias(funcionario_id):
+    try:
+        RegisterServiceFuncionario.update_ferias(funcionario_id, False)
+        return jsonify({
+            "mensagem": "Funcionário voltou de ferias"
+        }), 200
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 400
+
+@funcionario_bp.delete('/adm/<int:funcionario_id>/delete')
+@perfil_required("ADMINISTRADOR")
+def delete_funcionario(funcionario_id):
+    try:
+        RegisterServiceFuncionario.deletar_funcionario(funcionario_id)
+        return jsonify({
+            "mensagem": "Funcionario excluído com sucesso."
+        }), 200
+    except ValueError as erro:
+        return jsonify({"erro": str(erro)}), 404
+
+    except Exception as erro:
+        return jsonify({"erro": str(erro)}), 500   

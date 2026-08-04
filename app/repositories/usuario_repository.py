@@ -70,9 +70,14 @@ class UsuarioRepository:
         db.session.commit()
         return usuario
 
-     
-    
-    #excluir *****
+    @staticmethod  
+    def update_activity(usuario_id, bolv):
+        usuario = Usuario.query.get(usuario_id)
+        usuario.cadastro_ativo = bolv
+        db.session.commit()
+        return usuario
+
+    #excluir 
     @staticmethod
     def delete(usuario_id: int):
         usuario = db.session.get(Usuario, usuario_id)

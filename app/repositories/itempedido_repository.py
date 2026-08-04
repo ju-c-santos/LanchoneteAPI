@@ -40,12 +40,17 @@ class ItemPedidoRepository:
         return "Preço alterado com sucesso!"
     
     @staticmethod
-    def delete(itempedido_id:int):
-        item = db.session.get(ItemPedido, itempedido_id)
-        if item is None:
-            return False
+    def delete(item):
         db.session.delete(item)
+
+    @staticmethod
+    def flush():
+        db.session.flush()
+
+    @staticmethod
+    def update():
         db.session.commit()
-        return True
+        
+        
 
     

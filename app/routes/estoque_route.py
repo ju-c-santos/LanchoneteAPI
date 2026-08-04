@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.services.estoque_service import EstoqueService
+from app.repositories.unidade_repository import UnidadeRepository
 from app.util.decorator_perfil import perfil_required
 from flask_jwt_extended import get_jwt_identity
 
@@ -36,3 +37,43 @@ def atualizar_disponibilidade(estoque_id):
         }), 200
     except Exception as e:
         return jsonify({"erro":str(e)}), 400
+
+@estoque_bp.patch('/admin/estoque/<int:estoque_id>/quantidade')
+@perfil_required("ADMINISTRADOR")
+def atualizar_quantidade_estoque(estoque_id):
+    try:
+        dados = request.get_json()
+        estoque = EstoqueService.alterar_quantidade(estoque_id, dados)
+        return jsonify({
+            "mensagem": "Quantidade atualizada com sucesso",
+            "estoque_id": estoque.id,
+            "produto_id": estoque.id_produto,
+            "unidade_id": estoque.id_unidade,
+            "quantidade": estoque.quantidade,
+            "is_active": estoque.is_active
+        }), 200
+    except Exception as e:
+        return jsonify({"erro":str(e)}), 400
+    
+
+@estoque_bp.get('/unidade/<int:unidade_id>/menu')
+def visualizar_menu(unidade_id):
+    try:
+        unidade = UnidadeRepository.chase_by_id(unidade_id)
+        if unidade is None:
+            raise ValueError("Unidade inválida")
+        menu = EstoqueService.menu_cliente(unidade_id)
+        return jsonify({
+            "unidade": {
+                "id": unidade.id,
+                "localidade": unidade.localidade,
+                "estado": unidade.estado 
+            },
+            "quatidade_produtos": len(menu),
+            "produtos": menu
+        }), 200
+    except ValueError as erro:
+        return jsonify({"erro": str(erro)}), 404
+
+    except Exception as erro:
+        return jsonify({"erro": str(erro)}), 500

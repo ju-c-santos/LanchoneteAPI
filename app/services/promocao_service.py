@@ -63,3 +63,18 @@ class PromocaoService:
             preco_final = Decimal("0.00")
         preco_promocao = preco_final.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
         return preco_promocao
+
+    @staticmethod
+    def atividade(promocao_id, bolv):
+        promo = PromocaoRepository.chase_by_id(promocao_id)
+        if promo is None:
+            raise ValueError("Promoção inexistente")
+        nova_atualizacao = PromocaoRepository.update_activity(promocao_id, bolv)
+        return nova_atualizacao
+
+    @staticmethod
+    def delete_promocao(promocao_id):
+        promo = PromocaoRepository.chase_by_id(promocao_id)
+        if promo is None:
+            raise ValueError("Promoção Inválida")
+        return PromocaoRepository.delete(promo.id)

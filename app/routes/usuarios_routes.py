@@ -44,6 +44,27 @@ def atualizar_cadastro(usuario_id):
     except Exception as e:
         return jsonify({"erro":str(e)}), 400
 
+@usuario_bp.patch("/admin/usuarios/ativar-cadastro/<int:usuario_id>")
+@perfil_required("ADMINISTRADOR")
+def ativar_cadastro(usuario_id):
+    try:
+        AuthServiceUsuario.cadastro_ativo(usuario_id, True)
+        return jsonify({
+            "mensagem":"cadastro ativo"
+        }), 200
+    except Exception as e:
+        return jsonify({"erro":str(e)}), 400 
+
+@usuario_bp.patch("/admin/usuarios/desativar-cadastro/<int:usuario_id>")
+@perfil_required("ADMINISTRADOR")
+def desativar_cadastro(usuario_id):
+    try:
+        AuthServiceUsuario.cadastro_ativo(usuario_id, False)
+        return jsonify({
+            "mensagem":"cadastro ativo"
+        }), 200
+    except Exception as e:
+        return jsonify({"erro":str(e)}), 400 
 
 @usuario_bp.get('/usuario/consulta/saldo')
 @perfil_required("CLIENTE")
@@ -64,6 +85,22 @@ def consultar_pontos(usuario_id):
         return registros, 200
     except Exception as e:
         return jsonify({"erro":str(e)}), 400 
+
+
+@usuario_bp.delete('/<int:usuario_id>/delete')
+@perfil_required("ADMINISTRADOR", "CLIENTE")
+def delete_usuario(usuario_id):
+    try:
+        AuthServiceUsuario.deletar(usuario_id)
+        return jsonify({
+            "mensagem": "Usuario excluído com sucesso."
+        }), 200
+
+    except ValueError as erro:
+        return jsonify({"erro": str(erro)}), 404
+
+    except Exception as erro:
+        return jsonify({"erro": str(erro)}), 500   
 
         
         

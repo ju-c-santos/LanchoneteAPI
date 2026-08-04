@@ -11,7 +11,7 @@ def pagamento(id_pedido):
     try:
         id_usuario = get_jwt_identity()
         dados = request.get_json()
-        pagamento = PagamentoService.mock_pagamento(id_pedido, dados)
+        pagamento = PagamentoService.mock_pagamento(id_pedido, id_usuario, dados)
         return jsonify ({
             "pedido": id_pedido,
             "aprovado": pagamento.aprovado,

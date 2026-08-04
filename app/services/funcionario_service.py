@@ -39,6 +39,7 @@ class RegisterServiceFuncionario:
         UsuarioRepository.update_perfil(usuario, Perfil[cargo])
         return funcionario
 
+
     @staticmethod
     def alterar_unidade(funcionario_id, dados):
         unidade = UnidadeRepository.chase_by_id(dados['unidade_id'])
@@ -46,3 +47,20 @@ class RegisterServiceFuncionario:
             raise ValueError("Unidade não encontrada")
         funcionario = FuncionarioRepository.updade_unidade(funcionario_id, dados['unidade_id'] )
         return funcionario
+
+    @staticmethod
+    def update_ferias(funcionario_id, bolv):
+        funcionario = FuncionarioRepository.chase_by_id(funcionario_id)
+        if funcionario is None:
+            raise ValueError("Funcionario inexistente")
+        nova_atualizacao = FuncionarioRepository.update_ferias(funcionario.id, bolv)
+        return nova_atualizacao
+
+    @staticmethod
+    def deletar_funcionario(funcionario_id):
+        funcionario = FuncionarioRepository.chase_by_id(funcionario_id)
+        if funcionario is None:
+            raise ValueError("Funcionário inválido")
+        usuario_id = funcionario.usuario_id
+        UsuarioRepository.update_perfil(usuario_id, 'CLIENTE')
+        return FuncionarioRepository.delete(funcionario.id)

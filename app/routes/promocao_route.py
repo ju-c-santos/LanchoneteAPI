@@ -28,6 +28,29 @@ def criar_promocao():
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
 
+
+@promocao_bp.patch('/admin/promocoes/<int:promocao_id>/ativar')
+@perfil_required('ADMINISTRADOR')
+def ativar_promocao(promocao_id):
+    try:
+        PromocaoService.atividade(promocao_id, True)
+        return jsonify ({
+            "mensagem":"promoção ativa"
+        }), 200
+    except Exception as e:
+        return jsonify({"erro":str(e)}), 400 
+
+@promocao_bp.patch('/admin/promocoes/<int:promocao_id>/desativar')
+@perfil_required('ADMINISTRADOR')
+def desativar_promocao(promocao_id):
+    try:
+        PromocaoService.atividade(promocao_id, False)
+        return jsonify ({
+            "mensagem":"promoção desativada"
+        }), 200
+    except Exception as e:
+        return jsonify({"erro":str(e)}), 400     
+
 @promocao_bp.get('/admin/promocoes')
 @perfil_required("ADMINISTRADOR")
 def listar_promocoes():
@@ -49,3 +72,17 @@ def listar_promocoes():
         ]), 200
     except Exception as e:
             return jsonify({"erro":str(e)}), 400 
+
+
+@promocao_bp.delete('/admin/<int:pomocao_id>/delete')
+@perfil_required("ADMINISTRADOR")
+def delete_promocao(promocao_id):
+    try:
+        PromocaoService.delete_promocao(promocao_id)
+        return jsonify({
+            "mensagem": "Usuario excluído com sucesso."
+        }), 200
+    except ValueError as erro:
+        return jsonify({"erro": str(erro)}), 404
+    except Exception as erro:
+        return jsonify({"erro": str(erro)}), 500      

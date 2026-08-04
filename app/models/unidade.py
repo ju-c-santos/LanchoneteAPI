@@ -9,6 +9,7 @@ class Unidade(db.Model):
     cep = db.Column(db.String(9), nullable= False)
     cidade = db.Column(db.String(50), nullable = False)
     estado = db.Column(db.String(2), nullable = False)
+    is_active = db.Column(db.Boolean, nullable=False, default = True) #por definição todas estão ativas
 
     funcionarios = db.relationship(
         "Funcionario", 

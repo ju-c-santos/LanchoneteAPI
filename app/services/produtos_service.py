@@ -47,5 +47,11 @@ class ProdutoService:
             "estoques_atualizados":estoque_atualizado
         }
 
+    @staticmethod
+    def delete_produto(produto_id):
+        produto = ProdutoRepository.chase_by_id(produto_id)
+        if produto is None: 
+            raise ValueError("Produto inválido")
+        return ProdutoRepository.delete(produto.id)
 
   

@@ -68,12 +68,3 @@ class PedidoRepository:
         pedido.status = statusnew
         db.session.commit()
         return True
-
-    @staticmethod
-    def delete(pedido_id:int):
-        pedido = db.session.get(Pedido, pedido_id)
-        if pedido is None:
-            return False
-        db.session.delete(pedido)
-        db.session.commit()
-        return True

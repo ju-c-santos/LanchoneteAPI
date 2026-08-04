@@ -21,3 +21,40 @@ def unidade_register():
         return jsonify({"erro": str(erro)}),400
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
+
+
+@unidade_bp.patch('/admin/<int:unidade_id>/atualize/is_active/True')
+@perfil_required("ADMINISTRADOR")
+def atividade_true(unidade_id):
+    try:
+        ServiceUnidade.alterar_atividade(unidade_id, True)
+        return jsonify({
+            "mensagem": "Empresa agora se encontra em atividade"
+        }), 200
+    except Exception as e:
+        return jsonify({"erro":str(e)}), 400
+
+@unidade_bp.patch('/admin/<int:unidade_id>/atualize/is_active/False')
+@perfil_required("ADMINISTRADOR")
+def atividade_false(unidade_id):
+    try:
+        ServiceUnidade.alterar_atividade(unidade_id, False)
+        return jsonify({
+            "mensagem": "Empresa agora se encontra inativa"
+        }), 200
+    except Exception as e:
+        return jsonify({"erro":str(e)}), 400
+
+
+@unidade_bp.delete('/admin/unidade/<int:unidade_id>/delete')
+@perfil_required("ADMINISTRADOR")
+def deletar_unidade(unidade_id):
+    try:
+        ServiceUnidade.deletar_unidade(unidade_id)
+        return jsonify({
+            "mensagem":"Unidade excluida com sucesso!"
+        }), 200
+    except ValueError as erro:
+        return jsonify({"erro": str(erro)}), 404
+    except Exception as erro:
+        return jsonify({"erro": str(erro)}), 500

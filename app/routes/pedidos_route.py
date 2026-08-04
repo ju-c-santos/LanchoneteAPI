@@ -65,6 +65,23 @@ def cancelar(id):
     except Exception as e:
         return jsonify({"erro":str(e)}), 400
 
+
+@pedido_bp.patch("/pedidos/<int:pedido_id>/itens/<int:item_id>")
+@perfil_required("CLIENTE")
+def alterar_item_pedido(pedido_id, item_id):
+    try:
+        usuario_id = int(get_jwt_identity())
+        dados = request.get_json
+        pedido = PedidoService.alterar_item(pedido_id, item_id, usuario_id, dados)
+        return jsonify ({
+            "mensagem":"Item alterado com sucesso",
+            "pedido":pedido.to_dict()
+        }), 200
+    except ValueError as erro:
+        return jsonify({"erro": str(erro)}), 400
+    except Exception as erro:
+        return jsonify({"erro": str(erro)}), 500
+
 #ROTAS PARA RETORNO
 #para o usuario
 @pedido_bp.get('/login/pedidos/historico')
@@ -98,7 +115,7 @@ def historico_cliente_adm(usuario_id):
     except Exception as erro:
         return jsonify({"erro": str(erro)}), 500    
 
-#listaem de pedidos do dia atual
+#listagem de pedidos do dia atual
 @pedido_bp.get('/admin/pedidos')
 @perfil_required('ADMINISTRADOR', 'GERENCIA')
 def pedidos_hoje():
@@ -130,5 +147,21 @@ def pedidos_abertos():
     except ValueError as erro:
         return jsonify({"erro": str(erro)}), 400
     except Exception as erro:
-        return jsonify({"erro": str(erro)}), 500    
+        return jsonify({"erro": str(erro)}), 500  
+
+
+@pedido_bp.delete('/pedidos/<int:pedido_id>/itens/<int:item_id>')
+@perfil_required('CLIENTE')
+def remover_item_pedido(pedido_id, item_id):
+    try:
+        usuario_id = int(get_jwt_identity())
+        pedido = PedidoService.remover_item(pedido_id,item_id,usuario_id)
+        return jsonify ({
+            "mensagem":"Item removido com sucesso",
+            "pedido": pedido.to_dict()
+        }), 200
+    except ValueError as erro:
+        return jsonify({"erro": str(erro)}), 400
+    except Exception as erro:
+        return jsonify({"erro": str(erro)}), 500     
 

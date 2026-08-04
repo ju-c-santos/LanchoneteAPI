@@ -28,6 +28,13 @@ class UnidadeRepository:
     def update():
         db.session.commit()
 
+    @staticmethod
+    def update_is_active(unidade_id, bolv):
+        unidade = Unidade.query.get(unidade_id)
+        unidade.is_active = bolv
+        db.session.commit()
+        return unidade
+
     #excluir
     @staticmethod
     def delete(unidade_id:int):

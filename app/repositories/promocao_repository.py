@@ -49,5 +49,18 @@ class PromocaoRepository:
         )
 
     @staticmethod
-    def update():
-        db.session.commit()    
+    def update_activity(promocao_id, bolv):
+        promo = Promocao.query.get(promocao_id)
+        promo.ativa = bolv
+        db.session.commit()
+        return promo    
+
+     #excluir 
+    @staticmethod
+    def delete(promocao_id: int):
+        promo = db.session.get(Promocao, promocao_id)
+        if promo is None:
+            return False
+        db.session.delete(promo)
+        db.session.commit()
+        return True

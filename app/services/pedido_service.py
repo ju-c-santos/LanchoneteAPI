@@ -11,6 +11,7 @@ from app.repositories.funcionario_repository import FuncionarioRepository
 from app.repositories.relatorio_repository import RelatorioRepository
 from app.services.promocao_service import PromocaoService
 from app.services.pontos_service import PontosService
+from app.repositories.itempedido_repository import ItemPedidoRepository
 
 from decimal import Decimal, ROUND_HALF_UP
 from datetime import datetime
@@ -77,6 +78,7 @@ class PedidoService:
         PedidoRepository.update()
         return pedido
 
+
     @staticmethod
     def pedido_pronto(id_pedido):
         pedido = PedidoRepository.chase_by_id(id_pedido)
@@ -87,6 +89,7 @@ class PedidoService:
         pedido.status = Status.PRONTO
         PedidoRepository.update()
         return pedido
+
 
     @staticmethod
     def aguardando_entregador(id_pedido):
@@ -100,6 +103,7 @@ class PedidoService:
         pedido.status = Status.AGUARDANDO_ENTREGADOR
         PedidoRepository.update()
         return pedido
+
 
     @staticmethod
     def finalizar(id_pedido):
@@ -161,3 +165,77 @@ class PedidoService:
             "nome" : resultado.nome,
             "total_vendido" : int(resultado.total_vendido)
         }
+
+    @staticmethod
+    def recalcular_total(pedido):
+        total = Decimal("0.00")
+        volume = 0
+        for item in pedido.itempedido:
+            total += Decimal(str(item.subtotal))
+            volume += int(item.quantidade)
+        pedido.total = total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        pedido.volume = volume
+
+
+    @staticmethod
+    def remover_item(pedido_id, item_id, usuario_id):
+        pedido = PedidoRepository.chase_by_id(pedido_id)
+        if pedido is None:
+            raise ValueError("Pedido inválido")
+        if pedido.usuario_id != usuario_id:
+            raise ValueError("Você não possui autorização")
+        if pedido.status != Status.AGUARDANDO_PAGAMENTO:
+            raise ValueError("Pedido não pode ser alterado")
+        item = ItemPedidoRepository.chase_by_id(item_id)
+        if item is None or item.id_pedido != pedido.id:
+            raise ValueError("Item não encontrado no pedido")
+        estoque = EstoqueRepository.chase_by_id(item.estoque_id)
+        if estoque is not None:
+            estoque.quantidade += int(item.quantidade)
+            estoque.is_active - True
+        ItemPedidoRepository.delete(item)
+        ItemPedidoRepository.flush()
+        if len(pedido.itempedido) == 0:
+            ItemPedidoRepository.delete(item)
+            ItemPedidoRepository.update()
+            return None
+        PedidoService.recalcular_total(pedido)
+        ItemPedidoRepository.update()
+        return pedido
+
+    @staticmethod
+    def alterar_item(pedido_id, item_id, usuario_id, dados):
+        pedido = PedidoRepository.chase_by_id(pedido_id)
+        if pedido is None:
+            raise ValueError("Pedido inválido")
+        if pedido.usuario_id != usuario_id:
+            raise ValueError("Você não possui autorização")
+        if pedido.status != Status.AGUARDANDO_PAGAMENTO:
+            raise ValueError("Pedido não pode ser alterado")
+        item = ItemPedidoRepository.chase_by_id(item_id)
+        if item is None or item.id_pedido != pedido.id:
+            raise ValueError("Item não encontrado no pedido")         
+        nova_quantidade = int(dados['quatidade'])
+        if nova_quantidade <= 0:
+            raise ValueError("A quantidade deve ser acima de zero")
+        estoque = EstoqueRepository.chase_by_id(item.estoque_id)
+        if estoque is None:
+            raise ValueError("Estoque inválido")
+        quantidade_anterior = int(item.quantidade)
+        diferenca = nova_quantidade - quantidade_anterior
+        #cliente aumentou a quantidade
+        if diferenca > 0:
+            if estoque.quantidade < diferenca:
+                raise ValueError("Estoque insufuciente")
+            estoque.quantidade -= diferenca
+
+        #cliente diminuiu a quantidade
+        elif diferenca < 0:
+            estoque.quantidade += abs(diferenca)
+            estoque.is_active = True
+        valor_unitario = Decimal(str(item.preco))
+        item.quantidade = nova_quantidade
+        item.subtotal = (valor_unitario * Decimal(nova_quantidade)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        PedidoService.recalcular_total(pedido)
+        PedidoRepository.update(pedido)
+        return pedido

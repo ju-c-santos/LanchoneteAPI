@@ -19,7 +19,7 @@ class Funcionario(db.Model):
     )
 
     cargo = db.Column(db.String(30), nullable=False)
-
+    ferias = db.Column(db.Boolean, nullable=False, default=False)
 
     usuarios = db.relationship(
         "Usuario", 

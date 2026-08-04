@@ -24,6 +24,18 @@ class EstoqueRepository:
     def show_by_unidade(unidade: int):
         return Estoque.query.filter_by(unidade)
 
+    @staticmethod
+    def show_menu(unidade_id):
+        return (Estoque.query.filter(
+            Estoque.id_unidade == unidade_id,
+            Estoque.is_active.is_(True),
+            Estoque.quantidade > 0
+        ).all())
+
+    @staticmethod
+    def update():
+        db.session.commit()
+
     #alterar a disponibilidade do produto em determinada unidade
     @staticmethod
     def update_activity(estoque_id: int, bolvalue):

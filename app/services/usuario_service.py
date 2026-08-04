@@ -64,8 +64,18 @@ class AuthServiceUsuario:
             raise ValueError('Não é possível alterar esta informação')
         return valor
 
+    @staticmethod
+    def cadastro_ativo(usuario_id, bvalue):
+        usuario = UsuarioRepository.chase_by_id(usuario_id)
+        if usuario is None:
+            raise ValueError("Usuario inexistente")
+        nova_atualizacao = UsuarioRepository.update_activity(usuario.id, bvalue)
+        return nova_atualizacao
 
     @staticmethod
-    def consultar_pontos(usuario_id):
-        pass
+    def delete_usuario(usuario_id):
+        usuario = UsuarioRepository.chase_by_id(usuario_id)
+        if usuario is None:
+            raise ValueError("Usuario inválido")
+        return UsuarioRepository.delete(usuario.id)
 
