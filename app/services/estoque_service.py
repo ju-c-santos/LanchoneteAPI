@@ -49,14 +49,14 @@ class EstoqueService:
         return nova_atualizacao
 
     @staticmethod
-    def alterar_quantidade(estoque_id, dados):
+    def somar_quantidade(estoque_id, dados):
         estoque = EstoqueRepository.chase_by_id(estoque_id)
         if estoque is None:
             raise ValueError("Item inválido")
         nova_quantidade = int(dados['quantidade'])
         if nova_quantidade < 0:
             raise ValueError("A quantidade não pode ser negativa")
-        estoque.quantidade = nova_quantidade
+        estoque.quantidade += nova_quantidade
         estoque.is_active = nova_quantidade > 0
         EstoqueRepository.update()
         return estoque

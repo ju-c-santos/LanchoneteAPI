@@ -43,7 +43,7 @@ def atualizar_disponibilidade(estoque_id):
 def atualizar_quantidade_estoque(estoque_id):
     try:
         dados = request.get_json()
-        estoque = EstoqueService.alterar_quantidade(estoque_id, dados)
+        estoque = EstoqueService.somar_quantidade(estoque_id, dados)
         return jsonify({
             "mensagem": "Quantidade atualizada com sucesso",
             "estoque_id": estoque.id,

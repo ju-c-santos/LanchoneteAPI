@@ -228,7 +228,6 @@ class PedidoService:
             if estoque.quantidade < diferenca:
                 raise ValueError("Estoque insufuciente")
             estoque.quantidade -= diferenca
-
         #cliente diminuiu a quantidade
         elif diferenca < 0:
             estoque.quantidade += abs(diferenca)

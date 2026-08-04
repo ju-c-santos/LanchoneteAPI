@@ -53,6 +53,8 @@ class PromocaoService:
             return preco
         if quantidade < promocao.quantidade_minima:
             return preco
+        if promocao.ativa == False:
+            return preco
         desconto = Decimal(str(promocao.valor_desconto))
         if promocao.tipo_desconto == TipoDesconto.PERCENTUAL:
             valor_desconto = preco * (desconto / Decimal("100"))

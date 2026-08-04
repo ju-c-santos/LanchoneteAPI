@@ -10,7 +10,7 @@ class RegisterServiceAdm:
         usuario = UsuarioRepository.chase_by_id(dados['id'])
         if usuario is None:
             raise ValueError("Usuario não encontrado")
-        if cargo not in ["ADMINISTRADOR", "GERENCIA"]:
+        if cargo not in ["ADMINISTRADOR", "GERENCIA", "GESTAO"]:
             raise ValueError("Rota errada")
         
         try:
