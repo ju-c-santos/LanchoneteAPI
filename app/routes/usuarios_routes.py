@@ -87,11 +87,11 @@ def consultar_pontos(usuario_id):
         return jsonify({"erro":str(e)}), 400 
 
 
-@usuario_bp.delete('/<int:usuario_id>/delete')
+@usuario_bp.delete('/usuario/<int:usuario_id>/delete')
 @perfil_required("ADMINISTRADOR", "CLIENTE", "GESTAO")
 def delete_usuario(usuario_id):
     try:
-        AuthServiceUsuario.deletar(usuario_id)
+        AuthServiceUsuario.delete_usuario(usuario_id)
         return jsonify({
             "mensagem": "Usuario excluído com sucesso."
         }), 200

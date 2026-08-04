@@ -23,7 +23,7 @@ def unidade_register():
         return jsonify({"erro": str(e)}), 500
 
 
-@unidade_bp.patch('/admin/<int:unidade_id>/atualize/is_active/True')
+@unidade_bp.patch('/admin/unidade/<int:unidade_id>/atualize/is_active/True')
 @perfil_required("GESTAO")
 def atividade_true(unidade_id):
     try:
@@ -34,7 +34,7 @@ def atividade_true(unidade_id):
     except Exception as e:
         return jsonify({"erro":str(e)}), 400
 
-@unidade_bp.patch('/admin/<int:unidade_id>/atualize/is_active/False')
+@unidade_bp.patch('/admin/unidade/<int:unidade_id>/atualize/is_active/False')
 @perfil_required("GESTAO")
 def atividade_false(unidade_id):
     try:

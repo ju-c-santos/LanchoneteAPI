@@ -49,7 +49,7 @@ class EstoqueRepository:
     #serão informados o id do item em estoque e a quantidade a ser RETIRADA    
         item = Estoque.query.get(estoque_id)
         item.quantidade -= qtd
-        if item.quantidade < 0:
+        if item.quantidade <= 0:
             item.is_active = False
         db.session.commit()
         return item

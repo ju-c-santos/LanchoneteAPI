@@ -64,18 +64,3 @@ def listar_alteracoes_preco():
         ]), 200
     except Exception as e:
         return jsonify({"erro":str(e)}), 400 
-
-
-@produto_bp.delete('/admin/<int:produto_id>/delete')
-@perfil_required("GESTAO")
-def delete_produto(produto_id):
-    try:
-        ProdutoService.delete_produto(produto_id)
-        return jsonify({
-            "mensagem": "Produto excluído com sucesso."
-        }), 200
-    except ValueError as erro:
-        return jsonify({"erro": str(erro)}), 404
-    except Exception as erro:
-        return jsonify({"erro": str(erro)}), 500 
-

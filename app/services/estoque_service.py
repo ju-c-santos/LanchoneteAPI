@@ -71,7 +71,7 @@ class EstoqueService:
 
     @staticmethod
     def serializar_item_menu(estoque):
-        promocao = PromocaoRepository.chase_by_id(estoque.id_produto, estoque.id_unidade)
+        promocao = PromocaoRepository.chase_by_produto(estoque.id_produto, estoque.id_unidade)
         preco_original = Decimal(str(estoque.preco))
         preco_final = preco_original
         dados_promocao = None

@@ -34,15 +34,6 @@ class ProdutoRepository:
         return produto
 
     @staticmethod
-    def delete(produto_id: int):
-        produto = db.session.get(Produto, produto_id)
-        if produto is None:
-            return False
-        db.session.delete(produto)
-        db.session.commit()
-        return True
-
-    @staticmethod
     def get_from(produto_id: int, coluna):
         dado = db.select(coluna).where(Produto.id == produto_id)
         item = db.session.execute(dado).scalar()

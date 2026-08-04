@@ -21,7 +21,7 @@ def criar_pedido():
 
 #ROTAS PARA ALTERAÇÃO DE STATUS
 @pedido_bp.patch("/<int:id>/status/aceitar")
-@perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR")
+@perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR", "GESTAO")
 def aceitar_pedido(id):
     try:
         PedidoService.preparar_pedido(id)
@@ -30,7 +30,7 @@ def aceitar_pedido(id):
         return jsonify({"erro":str(e)}), 400
 
 @pedido_bp.patch("/<int:id>/status/pronto")
-@perfil_required("COZINHEIRO", "GERENCIA", "ADMINISTRADOR")
+@perfil_required("COZINHEIRO", "GERENCIA", "ADMINISTRADOR", "GESTAO")
 def pedido_pronto(id):
     try:
         PedidoService.pedido_pronto(id)
@@ -39,7 +39,7 @@ def pedido_pronto(id):
         return jsonify({"erro":str(e)}), 400
 
 @pedido_bp.patch("/<int:id>/status/entrega")
-@perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR")
+@perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR", "GESTAO")
 def pedido_entrega(id):
     try:
         PedidoService.aguardando_entregador(id)
@@ -48,7 +48,7 @@ def pedido_entrega(id):
         return jsonify({"erro":str(e)}), 400
 
 @pedido_bp.patch("/<int:id>/status/finalizar")
-@perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR")
+@perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR", "GESTAO")
 def finalizar(id):
     try:
         PedidoService.finalizar(id)
@@ -57,7 +57,7 @@ def finalizar(id):
         return jsonify({"erro":str(e)}), 400
 
 @pedido_bp.patch("/<int:id>/status/cancelar")
-@perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR")
+@perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR", "GESTAO")
 def cancelar(id):
     try:
         PedidoService.cancelar(id)
@@ -66,13 +66,13 @@ def cancelar(id):
         return jsonify({"erro":str(e)}), 400
 
 
-@pedido_bp.patch("/pedidos/<int:pedido_id>/itens/<int:item_id>")
+@pedido_bp.patch("/pedidos/<int:pedido_id>/itens/<int:itempedido_id>/alterar")
 @perfil_required("CLIENTE")
-def alterar_item_pedido(pedido_id, item_id):
+def alterar_item_pedido(pedido_id, itempedido_id):
     try:
         usuario_id = int(get_jwt_identity())
-        dados = request.get_json
-        pedido = PedidoService.alterar_item(pedido_id, item_id, usuario_id, dados)
+        dados = request.get_json()
+        pedido = PedidoService.alterar_item(pedido_id, itempedido_id, usuario_id, dados)
         return jsonify ({
             "mensagem":"Item alterado com sucesso",
             "pedido":pedido.to_dict()
@@ -102,7 +102,7 @@ def historico_cliente():
 
 #rota para administradores
 @pedido_bp.get('/admin/pedidos/historico/<int:usuario_id>')
-@perfil_required("ADMINISTRADOR", "GERENCIA")
+@perfil_required("ADMINISTRADOR", "GERENCIA", "GESTAO")
 def historico_cliente_adm(usuario_id):
     try:
         pedidos = PedidoService.historico_pedidos_all(usuario_id)
@@ -117,7 +117,7 @@ def historico_cliente_adm(usuario_id):
 
 #listagem de pedidos do dia atual
 @pedido_bp.get('/admin/pedidos')
-@perfil_required("ADMINISTRADOR", "GERENCIA")
+@perfil_required("ADMINISTRADOR", "GERENCIA", "GESTAO")
 def pedidos_hoje():
     try:
         usuario_id = get_jwt_identity()
@@ -136,7 +136,7 @@ def pedidos_hoje():
         return jsonify({"erro": str(erro)}), 500    
 
 @pedido_bp.get('/funcionarios/pedidos/em_aberto')
-@perfil_required('ADMINISTRADOR', 'GERENCIA', 'ATENDENTE', 'COZINHEIRO')
+@perfil_required('ADMINISTRADOR', 'GERENCIA', 'ATENDENTE', 'COZINHEIRO', "GESTAO")
 def pedidos_abertos():
     try:
         usuario_id = get_jwt_identity()
@@ -150,12 +150,12 @@ def pedidos_abertos():
         return jsonify({"erro": str(erro)}), 500  
 
 
-@pedido_bp.delete('/pedidos/<int:pedido_id>/itens/<int:item_id>')
+@pedido_bp.delete('/pedidos/<int:pedido_id>/itens/<int:itempedido_id>/delete')
 @perfil_required("CLIENTE")
-def remover_item_pedido(pedido_id, item_id):
+def remover_item_pedido(pedido_id, itempedido_id):
     try:
         usuario_id = int(get_jwt_identity())
-        pedido = PedidoService.remover_item(pedido_id,item_id,usuario_id)
+        pedido = PedidoService.remover_item(pedido_id,itempedido_id,usuario_id)
         return jsonify ({
             "mensagem":"Item removido com sucesso",
             "pedido": pedido.to_dict()

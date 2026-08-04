@@ -52,7 +52,7 @@ def desativar_promocao(promocao_id):
         return jsonify({"erro":str(e)}), 400     
 
 @promocao_bp.get('/admin/promocoes')
-@perfil_required("ADMINISTRADOR", "GERENCIA")
+@perfil_required("ADMINISTRADOR", "GERENCIA", "GESTAO")
 def listar_promocoes():
     try:
         registros = PromocaoRepository.listar_ativas()
@@ -74,13 +74,13 @@ def listar_promocoes():
             return jsonify({"erro":str(e)}), 400 
 
 
-@promocao_bp.delete('/admin/<int:pomocao_id>/delete')
+@promocao_bp.delete('/admin/promocao/<int:promocao_id>/delete')
 @perfil_required("GESTAO")
 def delete_promocao(promocao_id):
     try:
         PromocaoService.delete_promocao(promocao_id)
         return jsonify({
-            "mensagem": "Usuario excluído com sucesso."
+            "mensagem": "Promoção excluído com sucesso."
         }), 200
     except ValueError as erro:
         return jsonify({"erro": str(erro)}), 404

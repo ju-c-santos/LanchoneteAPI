@@ -7,7 +7,7 @@ from flask_jwt_extended import get_jwt_identity
 estoque_bp = Blueprint('estoque', __name__)
 
 @estoque_bp.route('/admin/atualize/estoque', methods=['POST'])
-@perfil_required("GERENCIA", "ADMINISTRADOR")
+@perfil_required("GERENCIA", "ADMINISTRADOR", "GESTAO")
 def add_to_estoque():
     try:
         dados = request.get_json()
@@ -26,7 +26,7 @@ def add_to_estoque():
 
 
 @estoque_bp.patch('/admin/atualize/is_active/<int:estoque_id>')
-@perfil_required("ADMINISTRADOR", "GERENCIA")
+@perfil_required("ADMINISTRADOR", "GERENCIA", "GESTAO")
 def atualizar_disponibilidade(estoque_id):
     try:
         usuario_logado = int(get_jwt_identity())
@@ -39,7 +39,7 @@ def atualizar_disponibilidade(estoque_id):
         return jsonify({"erro":str(e)}), 400
 
 @estoque_bp.patch('/admin/estoque/<int:estoque_id>/quantidade')
-@perfil_required("ADMINISTRADOR", "GERENCIA")
+@perfil_required("ADMINISTRADOR", "GERENCIA", "GESTAO")
 def atualizar_quantidade_estoque(estoque_id):
     try:
         dados = request.get_json()
@@ -66,7 +66,7 @@ def visualizar_menu(unidade_id):
         return jsonify({
             "unidade": {
                 "id": unidade.id,
-                "localidade": unidade.localidade,
+                "endereco": unidade.endereco,
                 "estado": unidade.estado 
             },
             "quatidade_produtos": len(menu),

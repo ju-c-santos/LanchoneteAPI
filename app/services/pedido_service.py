@@ -169,12 +169,9 @@ class PedidoService:
     @staticmethod
     def recalcular_total(pedido):
         total = Decimal("0.00")
-        volume = 0
         for item in pedido.itempedido:
             total += Decimal(str(item.subtotal))
-            volume += int(item.quantidade)
         pedido.total = total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-        pedido.volume = volume
 
 
     @staticmethod
@@ -186,6 +183,7 @@ class PedidoService:
             raise ValueError("Você não possui autorização")
         if pedido.status != Status.AGUARDANDO_PAGAMENTO:
             raise ValueError("Pedido não pode ser alterado")
+        pedido.volume -= 1
         item = ItemPedidoRepository.chase_by_id(item_id)
         if item is None or item.id_pedido != pedido.id:
             raise ValueError("Item não encontrado no pedido")
@@ -215,7 +213,7 @@ class PedidoService:
         item = ItemPedidoRepository.chase_by_id(item_id)
         if item is None or item.id_pedido != pedido.id:
             raise ValueError("Item não encontrado no pedido")         
-        nova_quantidade = int(dados['quatidade'])
+        nova_quantidade = int(dados['quantidade'])
         if nova_quantidade <= 0:
             raise ValueError("A quantidade deve ser acima de zero")
         estoque = EstoqueRepository.chase_by_id(item.estoque_id)
@@ -236,5 +234,5 @@ class PedidoService:
         item.quantidade = nova_quantidade
         item.subtotal = (valor_unitario * Decimal(nova_quantidade)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
         PedidoService.recalcular_total(pedido)
-        PedidoRepository.update(pedido)
+        PedidoRepository.update()
         return pedido

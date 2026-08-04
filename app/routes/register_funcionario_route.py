@@ -79,7 +79,7 @@ def desativar_ferias(funcionario_id):
     except Exception as e:
         return jsonify({"erro": str(e)}), 400
 
-@funcionario_bp.delete('/adm/<int:funcionario_id>/delete')
+@funcionario_bp.delete('/admin/funcionarios/<int:funcionario_id>/delete')
 @perfil_required("ADMINISTRADOR", "GESTAO")
 def delete_funcionario(funcionario_id):
     try:

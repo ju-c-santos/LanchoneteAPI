@@ -9,7 +9,7 @@ pagamento_bp = Blueprint("pagamento", __name__)
 @perfil_required("CLIENTE")
 def pagamento(id_pedido):
     try:
-        id_usuario = get_jwt_identity()
+        id_usuario = int(get_jwt_identity())
         dados = request.get_json()
         pagamento = PagamentoService.mock_pagamento(id_pedido, id_usuario, dados)
         return jsonify ({
