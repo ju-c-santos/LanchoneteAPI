@@ -6,7 +6,7 @@ from app.util.decorator_perfil import perfil_required
 promocao_bp = Blueprint('promocao', __name__)
 
 @promocao_bp.route('/admin/promocoes/criar', methods=['POST'])
-@perfil_required("ADMINISTRADOR")
+@perfil_required("GESTAO")
 def criar_promocao():
     try:
         dados = request.get_json()
@@ -30,7 +30,7 @@ def criar_promocao():
 
 
 @promocao_bp.patch('/admin/promocoes/<int:promocao_id>/ativar')
-@perfil_required('ADMINISTRADOR')
+@perfil_required("GESTAO")
 def ativar_promocao(promocao_id):
     try:
         PromocaoService.atividade(promocao_id, True)
@@ -41,7 +41,7 @@ def ativar_promocao(promocao_id):
         return jsonify({"erro":str(e)}), 400 
 
 @promocao_bp.patch('/admin/promocoes/<int:promocao_id>/desativar')
-@perfil_required('ADMINISTRADOR')
+@perfil_required("GESTAO")
 def desativar_promocao(promocao_id):
     try:
         PromocaoService.atividade(promocao_id, False)
@@ -52,7 +52,7 @@ def desativar_promocao(promocao_id):
         return jsonify({"erro":str(e)}), 400     
 
 @promocao_bp.get('/admin/promocoes')
-@perfil_required("ADMINISTRADOR")
+@perfil_required("ADMINISTRADOR", "GERENCIA")
 def listar_promocoes():
     try:
         registros = PromocaoRepository.listar_ativas()
@@ -75,7 +75,7 @@ def listar_promocoes():
 
 
 @promocao_bp.delete('/admin/<int:pomocao_id>/delete')
-@perfil_required("ADMINISTRADOR")
+@perfil_required("GESTAO")
 def delete_promocao(promocao_id):
     try:
         PromocaoService.delete_promocao(promocao_id)

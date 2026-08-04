@@ -8,7 +8,7 @@ from flask_jwt_extended import get_jwt_identity
 produto_bp = Blueprint('produto', __name__)
 
 @produto_bp.route('/admin/register/produto', methods=['POST'])
-@perfil_required("GERENCIA", "ADMINISTRADOR")
+@perfil_required("GESTAO", "ADMINISTRADOR")
 def add_produto():
     try:
         dados = request.get_json()
@@ -27,7 +27,7 @@ def add_produto():
 
 #ATERACAO DE PREÇO
 @produto_bp.patch("/admin/produto/<int:produto_id>/valor")
-@perfil_required("ADMINISTRADOR")
+@perfil_required("GESTAO")
 def alterar_preco(produto_id):
     try:
         usuario_id = int(get_jwt_identity())
@@ -46,7 +46,7 @@ def alterar_preco(produto_id):
 
 #VISUALIZAR ALTERAÇÕES
 @produto_bp.get('/funcionarios/precos/alteracoes')
-@perfil_required("COZINHEIRO", "ATENDENTE", "GERENCIA", "ADMINISTRADOR")
+@perfil_required("COZINHEIRO", "ATENDENTE", "GERENCIA", "ADMINISTRADOR", "GESTAO")
 def listar_alteracoes_preco():
     try:
         registros = HistoricoPrecoRepository.listar_recentes()
@@ -67,7 +67,7 @@ def listar_alteracoes_preco():
 
 
 @produto_bp.delete('/admin/<int:produto_id>/delete')
-@perfil_required("ADMINISTRADOR")
+@perfil_required("GESTAO")
 def delete_produto(produto_id):
     try:
         ProdutoService.delete_produto(produto_id)

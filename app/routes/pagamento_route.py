@@ -6,7 +6,7 @@ from flask_jwt_extended import get_jwt_identity
 pagamento_bp = Blueprint("pagamento", __name__)
 
 @pagamento_bp.route("/login/pedidos/<int:id_pedido>", methods=['POST'])
-@perfil_required('CLIENTE')
+@perfil_required("CLIENTE")
 def pagamento(id_pedido):
     try:
         id_usuario = get_jwt_identity()

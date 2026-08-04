@@ -6,7 +6,7 @@ from flask_jwt_extended import get_jwt_identity
 funcionario_bp = Blueprint('funcionarios', __name__)
 
 @funcionario_bp.route('/admin/register/funcionarios', methods=['POST'])
-@perfil_required("GERENCIA", "ADMINISTRADOR")
+@perfil_required("GERENCIA", "ADMINISTRADOR", "GESTAO")
 def register_funcionario():
     try:
         dados = request.get_json()
@@ -24,7 +24,7 @@ def register_funcionario():
 
 
 @funcionario_bp.patch('/admin/funcionarios/cargo/<int:funcionario_id>')
-@perfil_required("ADMINISTRADOR")
+@perfil_required("GESTAO")
 def alterar_cargo(funcionario_id):
     try:
         dados = request.get_json()
@@ -41,7 +41,7 @@ def alterar_cargo(funcionario_id):
 
 
 @funcionario_bp.patch('/admin/funcionarios/unidade/<int:funcionario_id>')
-@perfil_required("ADMINISTRADOR")
+@perfil_required("GESTAO")
 def alterar_unidade(funcionario_id):
     try:
         dados = request.get_json()
@@ -58,7 +58,7 @@ def alterar_unidade(funcionario_id):
 
 
 @funcionario_bp.patch('/admin/funcionarios/<int:funcionario_id>/ferias/ativar')
-@perfil_required("ADMINISTRADOR")
+@perfil_required("ADMINISTRADOR", "GERENCIA", "GESTAO")
 def ativar_ferias(funcionario_id):
     try:
         RegisterServiceFuncionario.update_ferias(funcionario_id, True)
@@ -69,7 +69,7 @@ def ativar_ferias(funcionario_id):
         return jsonify({"erro": str(e)}), 400
 
 @funcionario_bp.patch('/admin/funcionarios/<int:funcionario_id>/ferias/desativar')
-@perfil_required("ADMINISTRADOR")
+@perfil_required("ADMINISTRADOR", "GERENCIA", "GESTAO")
 def desativar_ferias(funcionario_id):
     try:
         RegisterServiceFuncionario.update_ferias(funcionario_id, False)
@@ -80,7 +80,7 @@ def desativar_ferias(funcionario_id):
         return jsonify({"erro": str(e)}), 400
 
 @funcionario_bp.delete('/adm/<int:funcionario_id>/delete')
-@perfil_required("ADMINISTRADOR")
+@perfil_required("ADMINISTRADOR", "GESTAO")
 def delete_funcionario(funcionario_id):
     try:
         RegisterServiceFuncionario.deletar_funcionario(funcionario_id)

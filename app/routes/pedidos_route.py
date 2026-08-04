@@ -6,7 +6,7 @@ from flask_jwt_extended import get_jwt_identity
 pedido_bp = Blueprint("pedido", __name__)
 
 @pedido_bp.route("/login/pedidos", methods=['POST'])
-@perfil_required('CLIENTE')
+@perfil_required("CLIENTE")
 def criar_pedido():
     try:
         usuario_id = get_jwt_identity()
@@ -102,7 +102,7 @@ def historico_cliente():
 
 #rota para administradores
 @pedido_bp.get('/admin/pedidos/historico/<int:usuario_id>')
-@perfil_required('ADMINISTRADOR', 'GERENCIA')
+@perfil_required("ADMINISTRADOR", "GERENCIA")
 def historico_cliente_adm(usuario_id):
     try:
         pedidos = PedidoService.historico_pedidos_all(usuario_id)
@@ -117,7 +117,7 @@ def historico_cliente_adm(usuario_id):
 
 #listagem de pedidos do dia atual
 @pedido_bp.get('/admin/pedidos')
-@perfil_required('ADMINISTRADOR', 'GERENCIA')
+@perfil_required("ADMINISTRADOR", "GERENCIA")
 def pedidos_hoje():
     try:
         usuario_id = get_jwt_identity()
@@ -151,7 +151,7 @@ def pedidos_abertos():
 
 
 @pedido_bp.delete('/pedidos/<int:pedido_id>/itens/<int:item_id>')
-@perfil_required('CLIENTE')
+@perfil_required("CLIENTE")
 def remover_item_pedido(pedido_id, item_id):
     try:
         usuario_id = int(get_jwt_identity())

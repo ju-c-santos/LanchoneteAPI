@@ -5,7 +5,7 @@ from flask_jwt_extended import jwt_required
 admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.route('/admin/register', methods=['POST'])
-@jwt_required("ADMINISTRADOR")
+@jwt_required("GESTAO")
 def reigster_admin():
     try:
         dados = request.get_json()

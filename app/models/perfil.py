@@ -6,3 +6,4 @@ class Perfil (enum.Enum):
     ATENDENTE = "ATENDENTE"
     GERENCIA = "GERENCIA"
     ADMINISTRADOR = "ADMINISTRADOR"
+    GESTAO = "GESTAO"

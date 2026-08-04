@@ -26,7 +26,7 @@ def add_to_estoque():
 
 
 @estoque_bp.patch('/admin/atualize/is_active/<int:estoque_id>')
-@perfil_required("ADMINISTRADOR")
+@perfil_required("ADMINISTRADOR", "GERENCIA")
 def atualizar_disponibilidade(estoque_id):
     try:
         usuario_logado = int(get_jwt_identity())
@@ -39,7 +39,7 @@ def atualizar_disponibilidade(estoque_id):
         return jsonify({"erro":str(e)}), 400
 
 @estoque_bp.patch('/admin/estoque/<int:estoque_id>/quantidade')
-@perfil_required("ADMINISTRADOR")
+@perfil_required("ADMINISTRADOR", "GERENCIA")
 def atualizar_quantidade_estoque(estoque_id):
     try:
         dados = request.get_json()

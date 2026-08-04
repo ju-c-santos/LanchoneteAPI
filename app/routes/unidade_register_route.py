@@ -5,7 +5,7 @@ from app.util.decorator_perfil import perfil_required
 unidade_bp = Blueprint('unidade', __name__)
 
 @unidade_bp.route('/admin/register/unidade', methods=['POST'])
-@perfil_required("ADMINISTRADOR")
+@perfil_required("GESTAO")
 def unidade_register():
     try:
         dados = request.get_json()
@@ -24,7 +24,7 @@ def unidade_register():
 
 
 @unidade_bp.patch('/admin/<int:unidade_id>/atualize/is_active/True')
-@perfil_required("ADMINISTRADOR")
+@perfil_required("GESTAO")
 def atividade_true(unidade_id):
     try:
         ServiceUnidade.alterar_atividade(unidade_id, True)
@@ -35,7 +35,7 @@ def atividade_true(unidade_id):
         return jsonify({"erro":str(e)}), 400
 
 @unidade_bp.patch('/admin/<int:unidade_id>/atualize/is_active/False')
-@perfil_required("ADMINISTRADOR")
+@perfil_required("GESTAO")
 def atividade_false(unidade_id):
     try:
         ServiceUnidade.alterar_atividade(unidade_id, False)
@@ -47,7 +47,7 @@ def atividade_false(unidade_id):
 
 
 @unidade_bp.delete('/admin/unidade/<int:unidade_id>/delete')
-@perfil_required("ADMINISTRADOR")
+@perfil_required("GESTAO")
 def deletar_unidade(unidade_id):
     try:
         ServiceUnidade.deletar_unidade(unidade_id)

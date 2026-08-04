@@ -26,7 +26,7 @@ def register_user():
 
 
 @usuario_bp.patch("/usuarios/alteracao/<int:usuario_id>")
-@perfil_required("CLIENTE", "ADMINISTRADOR")
+@perfil_required("CLIENTE", "ADMINISTRADOR", "GESTAO")
 def atualizar_cadastro(usuario_id):
     try:
         usuario_logado = int(get_jwt_identity())
@@ -45,7 +45,7 @@ def atualizar_cadastro(usuario_id):
         return jsonify({"erro":str(e)}), 400
 
 @usuario_bp.patch("/admin/usuarios/ativar-cadastro/<int:usuario_id>")
-@perfil_required("ADMINISTRADOR")
+@perfil_required("ADMINISTRADOR", "GESTAO")
 def ativar_cadastro(usuario_id):
     try:
         AuthServiceUsuario.cadastro_ativo(usuario_id, True)
@@ -56,7 +56,7 @@ def ativar_cadastro(usuario_id):
         return jsonify({"erro":str(e)}), 400 
 
 @usuario_bp.patch("/admin/usuarios/desativar-cadastro/<int:usuario_id>")
-@perfil_required("ADMINISTRADOR")
+@perfil_required("ADMINISTRADOR", "GESTAO")
 def desativar_cadastro(usuario_id):
     try:
         AuthServiceUsuario.cadastro_ativo(usuario_id, False)
@@ -78,7 +78,7 @@ def pontos_disponiveis():
 
 
 @usuario_bp.get('/<int:usuario_id>/consulta/saldo')
-@perfil_required("CLIENTE", "GERENTE", "ADMINISTRADOR")
+@perfil_required("CLIENTE", "GERENTE", "ADMINISTRADOR", "GESTAO")
 def consultar_pontos(usuario_id):
     try:
         registros = PontosService.consultar_saldo(usuario_id)
@@ -88,7 +88,7 @@ def consultar_pontos(usuario_id):
 
 
 @usuario_bp.delete('/<int:usuario_id>/delete')
-@perfil_required("ADMINISTRADOR", "CLIENTE")
+@perfil_required("ADMINISTRADOR", "CLIENTE", "GESTAO")
 def delete_usuario(usuario_id):
     try:
         AuthServiceUsuario.deletar(usuario_id)
