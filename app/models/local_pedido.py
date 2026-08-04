@@ -2,5 +2,7 @@ import enum
 
 class LocalPedido (enum.Enum):
     TOTEM = "TOTEM"
-    WEBSITE = "WEBSITE"
+    WEB = "WEB"
     BALCAO = "BALCAO"
+    PICKUP = "PICKUP"
+    APP = "APP"
