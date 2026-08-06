@@ -11,7 +11,9 @@ from app.routes.produto_route import produto_bp
 from app.routes.pedidos_route import pedido_bp
 from app.routes.pagamento_route import pagamento_bp
 from app.routes.promocao_route import promocao_bp
-
+from uuid import uuid4
+from flask import Flask, g, request
+from app.util.api_error import ApiError, resposta_erro
 
 
 jwt = JWTManager()
@@ -52,5 +54,56 @@ def create_app():
     app.register_blueprint(pedido_bp)
     app.register_blueprint(pagamento_bp)
     app.register_blueprint(promocao_bp)
+
+    @app.before_request
+    def criar_request_id():
+        g.request_id = (
+            request.headers.get("Request-ID") or str(uuid4())
+        )
+
+    @app.before_request
+    def adicionar_request_id(response):
+        response.headers["Request-ID"] = (
+            g.request_id
+        )
+        return response
+
+    @app.errorhandler(ApiError)
+    def api_error (erro):
+        return resposta_erro (
+            error = erro.error,
+            message = erro.message,
+            status_code = erro.status_code,
+            details = erro.details
+        )
+    
+    @app.errorhandler(404)
+    def rota_nao_encontrada(_erro):
+        return resposta_erro(
+            error = "ROTA_NAO_ENCONTRADA",
+            message = "A rota solicitada não existe.",
+            status_code = 404
+        )
+
+    @app.errorhandler(405)
+    def metodo_nao_permitido(_erro):
+        return resposta_erro(
+            error = "METODO_NAO_PERMITIDO",
+            message = "O método HTTP não é permitido para esta rota.",
+            status_code = 405
+        )
+
+    @app.errorhandler(Exception)
+    def erro_interno(erro):
+        app.logger.exception(
+            "Erro interno não tratado: %s",
+            erro
+        )
+        return resposta_erro(
+            error = "ERRO_INTERNO",
+            message = "Ocorreu um erro interno no servior.",
+            status_code = 500
+        )
+
 
     return app

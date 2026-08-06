@@ -58,13 +58,13 @@ class Pedido(db.Model):
     def to_dict(self):
         return {
             "id": self.id,
-            "unidade_id": self.unidade_id,
+            "unidadeId": self.unidade_id,
             "status": self.status.value,
             "total": self.total,
             "observacao": self.observacao,
-            "local_pedido": self.local_pedido.value,
-            "data_pedido": self.data_pedido.isoformat(),
+            "canalPedido": self.local_pedido.value,
+            "dataPedido": self.data_pedido.isoformat(),
             "entrega": self.entrega,
-            "usar_pontos": self.usar_pontos,
+            "usarPontos": self.usar_pontos,
             "itempedido": [item.to_dict() for item in self.itempedido]
         }

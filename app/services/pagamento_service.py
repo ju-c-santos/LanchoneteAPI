@@ -3,6 +3,7 @@ from app.repositories.pagamento_repository import PagamentoRepository
 from app.repositories.pedido_repository import PedidoRepository
 from app.models.metodo_pagamento import MetodoPagamento
 from app.models.status import Status
+from app.util.api_error import ApiError
 import random 
 import uuid
 
@@ -12,9 +13,25 @@ class PagamentoService:
     def mock_pagamento(id_pedido, id_usuario, dados):
         pedido = PedidoRepository.chase_by_id(id_pedido)
         if pedido.usuario_id != id_usuario:
-            raise ValueError("Usuário não realizou o pedido")
+            raise ApiError(
+                error="USUARIO_INVALIDO",
+                message="O usuário logado não pode completar esta ação.",
+                status_code=403,
+                details=[{
+                    "field":"usuarioId",
+                    "issue":"Apenas o usuário que realizou o pedido pode completar o pagamento do mesmo."
+                }]
+            )
         if pedido is None:
-            raise ValueError("Pedido inexistente")
+            raise ApiError(
+                error="PEDIDO_NAO_ENCONTRADO",
+                message="O pedido informado não foi encontrado.",
+                status_code=404,
+                details=[{
+                    "field":"pedidoId",
+                    "issue":f"O pedido {id_pedido} não foi encontrado."
+                }]
+            )
 
         metodo = MetodoPagamento(dados["metodo"])
         #validando pedido

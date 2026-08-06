@@ -1,5 +1,7 @@
 from app.models.estoque import Estoque
+from app.models.produto import Produto
 from app.database import db
+
 
 class EstoqueRepository:
     @staticmethod
@@ -25,12 +27,35 @@ class EstoqueRepository:
         return Estoque.query.filter_by(unidade)
 
     @staticmethod
-    def show_menu(unidade_id):
-        return (Estoque.query.filter(
-            Estoque.id_unidade == unidade_id,
-            Estoque.is_active.is_(True),
-            Estoque.quantidade > 0
-        ).all())
+    def show_menu(unidade_id, nome=None, categoria=None,
+        disponivel=None, preco_min=None, preco_max=None,
+        ordenar=None, page=1,limit=20):
+        ordenacoes = {
+            "nome_asc": Produto.nome.asc(),
+            "nome_desc": Produto.nome.desc(),
+            "preco_asc": Produto.preco.asc(),
+            "preco_desc": Produto.preco.desc()
+        }
+        query = (Estoque.query.join(Estoque.id_produto)
+                 .filter(Estoque.id_unidade == unidade_id, Estoque.is_active.is_(True)))
+        if nome:
+            query = query.filter(Produto.nome.ilike(f"%{nome}%"))
+        if categoria:
+            query = query.filter(Produto.categoria.ilike(f"%{categoria}%"))
+        if disponivel is True:
+            query = query.filter(Estoque.quantidade > 0)
+        elif disponivel is False:
+            query = query.filter(Estoque.quantidade <= 0)
+        if preco_min is not None:
+            query = query.filter(Estoque.preco >= preco_min)
+        if preco_max is not None:
+            query = query.filter(Estoque.preco <= preco_max)
+        query = query.order_by(ordenacoes[ordenar])
+        return query.paginate(
+            page=page,
+            per_page=limit,
+            error_out=False
+        )
 
     @staticmethod
     def update():
@@ -58,8 +83,6 @@ class EstoqueRepository:
     def update_quantity_return(estoque_id:int, qtd):
     #serão informados o id do item em estoque e a quantidade a ser RETORNADA    
         item = Estoque.query.get(estoque_id)
-        if item is None:
-            raise ValueError(f"Item inexisente")
         item.quantidade += int(qtd)
         if item.quantidade > 0:
             item.is_active = True

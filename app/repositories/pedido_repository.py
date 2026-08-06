@@ -2,7 +2,7 @@ from app.models.pedido import Pedido
 from app.repositories.usuario_repository import UsuarioRepository
 from app.models.status import Status
 from datetime import datetime, time
-from sqlalchemy import func
+from sqlalchemy import func, cast, Time
 from app.database import db
 
 class PedidoRepository:
@@ -18,20 +18,92 @@ class PedidoRepository:
         return Pedido.query.get(pedido_id)
 
     @staticmethod
-    def show_by_usuario(usuario_id:int):
-        return Pedido.query.filter_by(usuario_id=usuario_id).order_by(Pedido.data_pedido.desc()).all()
+    def chase_by_id_user(pedido_id, usuario_id):
+        return Pedido.query.filter(Pedido.id == pedido_id, Pedido.usuario_id == usuario_id)
 
     @staticmethod
-    def show_today_all(unidade_id):
-        inicio = datetime.combine(datetime.today(), time.min)
-        fim = datetime.combine(datetime.today(), time.max)
-        return (
-            Pedido.query.filter(
-                Pedido.data_pedido.between(inicio, fim),
-                Pedido.unidade_id == unidade_id
-            ).all()
+    def show_by_usuario(
+        usuario_id, pedido_id=None, unidade_id=None, status=None, canal_pedido=None, 
+        entrega=None, data_inicio=None, data_fim=None, valor_min=None, valor_max=None,
+        ordenar="pedidoId_desc", page=1, limit=20
+    ):
+        query = Pedido.query.filter(Pedido.usuario_id == usuario_id)
+        if pedido_id is not None:
+            query = query.filter(Pedido.id == pedido_id)
+        if unidade_id is not None:
+            query = query.filter(Pedido.unidade_id == unidade_id)
+        if status is not None:
+            query = query.filter(Pedido.status == status)
+        if canal_pedido is not None:
+            query = query.filter(Pedido.local_pedido == canal_pedido)
+        if entrega is not None:
+            query = query.filter(Pedido.entrega == entrega)
+        if data_inicio is not None:
+            query = query.filter(Pedido.data_pedido >= data_inicio)
+        if data_fim is not None:
+            query = query.filter(Pedido.data_pedido <= data_fim)
+        if valor_min is not None:
+            query = query.filter(Pedido.total >= valor_min)
+        if valor_max is not None:
+            query = query.filter(Pedido.total <= valor_max)
+        ordenacoes = {
+            "pedidoId_desc":Pedido.id.desc(),
+            "pedidoId_asc":Pedido.id.asc(),
+            "data_desc":Pedido.data_pedido.desc(),
+            "data_asc":Pedido.data_pedido.asc(),
+            "valor_desc":Pedido.total.desc(),
+            "valor_asc":Pedido.total.asc(),
+        }
+        query = query.order_by(ordenacoes[ordenar])
+        return query.paginate(
+            page=page,
+            per_page=limit,
+            error_out=False
         )
 
+    @staticmethod
+    def show_today_all(
+        unidade_id, usuario_id=None, pedido_id=None, status=None, canal_pedido=None, entrega=None, 
+        hora_inicio=None, hora_fim=None, valor_min=None, valor_max=None, ordenar="pedidoId_desc", page=1, limit=20
+        ):
+        inicio = datetime.combine(datetime.today(), time.min)
+        fim = datetime.combine(datetime.today(), time.max)
+        query = Pedido.query.filter(
+                Pedido.data_pedido.between(inicio, fim),
+                Pedido.unidade_id == unidade_id
+            )
+        if usuario_id is not None:
+            query = query.filter(Pedido.usuario_id == usuario_id)
+        if pedido_id is not None:
+            query = query.filter(Pedido.id == pedido_id)
+        if status is not None:
+            query = query.filter(Pedido.status == status)
+        if canal_pedido is not None:
+            query = query.filter(Pedido.local_pedido == canal_pedido)
+        if entrega is not None:
+            query = query.filter(Pedido.entrega == entrega)
+        if hora_inicio is not None:
+            query = query.filter(cast(Pedido.data_pedido, Time) >= hora_inicio)
+        if hora_fim is not None:
+            query = query.filter(cast(Pedido.data_pedido, Time) <= hora_fim)
+        if valor_min is not None:
+            query = query.filter(Pedido.total >= valor_min)
+        if valor_max is not None:
+            query = query.filter(Pedido.total <= valor_max)
+        ordenacoes = {
+            "pedidoId_desc": Pedido.id.desc(),
+            "pedidoId_asc": Pedido.id.asc(),
+            "valor_desc": Pedido.total.desc(),
+            "valor_asc": Pedido.total.asc()
+        }
+        query = query.order_by(ordenacoes[ordenar])
+        return query.paginate(
+            page=page,
+            per_page=limit,
+            error_out=False
+        )
+
+    
     @staticmethod
     def show_today(unidade_id):
         inicio = datetime.combine(datetime.today(), time.min)
