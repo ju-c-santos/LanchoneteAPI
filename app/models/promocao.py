@@ -32,3 +32,17 @@ class Promocao(db.Model):
         "Unidade",
         back_populates="promocoes"
     )    
+
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "nome": self.nome,
+            "produtoId": self.produto_id,
+            "unidadeId": self.unidade_id,
+            "tipoDesconto": self.tipo_desconto,
+            "quantidadeMinima": self.quantidade_minima,
+            "dataInicio": self.data_inicio.isoformat(),
+            "dataFim": self.data_fim.isoformat(),
+            "ativa": self.ativa
+        }

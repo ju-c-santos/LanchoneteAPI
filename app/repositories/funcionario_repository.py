@@ -1,4 +1,5 @@
 from app.models.funcionario import Funcionario
+from app.util.api_error import ApiError
 from app.database import db
 
 class FuncionarioRepository:
@@ -23,7 +24,15 @@ class FuncionarioRepository:
     def update_cargo(funcionario_id:int, newcargo:str):
         funcionario = Funcionario.query.get(funcionario_id)
         if funcionario is None:
-            raise ValueError("Funcinario inexistente")
+            raise ApiError(
+                error="FUNCIONARIO_NAO_ENCONTRADO",
+                message="O funcionário informado não foi encontrado.",
+                status_code=404,
+                details=[{
+                    "field":"funcionarioId",
+                    "issue":f"O funcionário de Id {funcionario_id} não existe."
+                }]
+            )
         funcionario.cargo = newcargo
         db.session.commit()
         return funcionario 
@@ -32,7 +41,15 @@ class FuncionarioRepository:
     def updade_unidade(funcionario_id: int, unidade_id:int):
         funcionario = Funcionario.query.get(funcionario_id)
         if funcionario is None:
-            raise ValueError("Funcinario inexistente")
+            raise ApiError(
+                error="FUNCIONARIO_NAO_ENCONTRADO",
+                message="O funcionário informado não foi encontrado.",
+                status_code=404,
+                details=[{
+                    "field":"funcionarioId",
+                    "issue":f"O funcionário de Id {funcionario_id} não existe."
+                }]
+            )   
         funcionario.unidade_id = unidade_id
         db.session.commit()
         return funcionario

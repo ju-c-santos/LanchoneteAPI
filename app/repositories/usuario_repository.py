@@ -1,4 +1,5 @@
 from werkzeug.security import generate_password_hash
+from app.util.api_error import ApiError
 from app.models.usuario import Usuario
 from app.database import db
 
@@ -65,7 +66,15 @@ class UsuarioRepository:
     def update_perfil(usuario_id:int, newPerfil:str):
         usuario = Usuario.query.get(usuario_id)
         if usuario is None:
-            raise ValueError("Usuário inexistente")
+            raise ApiError(
+                error="USUARIO_NAO_ENCONTRADO",
+                message="O usuário informado não foi encontrado.",
+                status_code=404,
+                details=[{
+                    "field":"usuarioId",
+                    "issue":f"O usuário de Id {usuario_id} não existe."
+                }]
+            )
         usuario.perfil = newPerfil
         db.session.commit()
         return usuario

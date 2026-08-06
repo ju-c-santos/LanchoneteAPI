@@ -3,6 +3,7 @@ from app.models.funcionario import Funcionario
 from app.repositories.usuario_repository import UsuarioRepository
 from app.repositories.funcionario_repository import FuncionarioRepository
 from app.repositories.unidade_repository import UnidadeRepository
+from app.util.api_error import ApiError
 
 class RegisterServiceFuncionario:
     @staticmethod
@@ -10,13 +11,37 @@ class RegisterServiceFuncionario:
         cargo = dados['cargo'].upper()
         usuario = UsuarioRepository.chase_by_id(dados['id'])
         if usuario is None:
-            raise ValueError("Usuario não encontrado")
+            raise ApiError(
+                error="USUARIO_NAO_ENCONTRADO",
+                message="O usuário informado não foi encontrado.",
+                status_code=404,
+                details=[{
+                    "field":"usuarioId",
+                    "issue":f"O usuário com Id {dados["id"]} não existe."
+                }]
+            )
         if cargo in ["ADMINISTRADOR", "GERENCIA"]:
-            raise ValueError("Rota errada")
+            raise ApiError(
+                error="ROTA_INVALIDA",
+                message="Rota para cadastro inválida.",
+                status_code=409,
+                details=[{
+                    "field":"cargo",
+                    "issue":f"Cargos de administração NÃO são aceitos aqui. (ADMINISTRADOR e GERENCIA)"
+                }]
+            )
         try:
             usuario.perfil = Perfil[cargo]
         except KeyError:
-            raise ValueError("Cargo inválido.")
+            raise ApiError(
+                error="CARGO_INVALIDO",
+                message="O cargo informado é inválido.",
+                status_code=422,
+                details=[{
+                    "field":"cargo",
+                    "issue":"Valores válidos: " + ", ".join(Perfil)
+                }]
+            )
 
         funcionario = Funcionario(
             usuario_id = dados['id'],
@@ -30,11 +55,27 @@ class RegisterServiceFuncionario:
     def alterar_cargo(funcionario_id, dados):
         funcionario = FuncionarioRepository.chase_by_id(funcionario_id)
         if funcionario is None:
-            raise ValueError("Funcionário não encontrado")
+            raise ApiError(
+                error="FUNCIONARIO_NAO_ENCONTRADO",
+                message="O funcionário informado não foi encontrado.",
+                status_code=404,
+                details=[{
+                    "field":"funcionarioId",
+                    "issue":f"O funcionário com Id {funcionario_id} não existe."
+                }]
+            )
         usuario = funcionario.usuario_id
         cargo = dados['novo_cargo'].upper()
         if Perfil[cargo] not in Perfil:
-            raise ValueError("Cargo inexistente")
+            raise ApiError(
+                error="CARGO_INVALIDO",
+                message="O cargo informado é inválido.",
+                status_code=422,
+                details=[{
+                    "field":"cargo",
+                    "issue":"Valores válidos: " + ", ".join(Perfil)
+                }]
+            )
         FuncionarioRepository.update_cargo(funcionario_id, cargo)
         UsuarioRepository.update_perfil(usuario, Perfil[cargo])
         return funcionario
@@ -44,7 +85,15 @@ class RegisterServiceFuncionario:
     def alterar_unidade(funcionario_id, dados):
         unidade = UnidadeRepository.chase_by_id(dados['unidade_id'])
         if unidade is None:
-            raise ValueError("Unidade não encontrada")
+            raise ApiError(
+                error="UNIDADE_NAO_ENCONTRADA",
+                message="A unidade informada não foi encontrada.",
+                status_code=404,
+                details=[{
+                    "field":"unidadeId",
+                    "issue":f"A unidade com Id {dados['unidade_id']} não existe."
+                }]
+            )
         funcionario = FuncionarioRepository.updade_unidade(funcionario_id, dados['unidade_id'] )
         return funcionario
 
@@ -52,7 +101,15 @@ class RegisterServiceFuncionario:
     def update_ferias(funcionario_id, bolv):
         funcionario = FuncionarioRepository.chase_by_id(funcionario_id)
         if funcionario is None:
-            raise ValueError("Funcionario inexistente")
+            raise ApiError(
+                error="FUNCIONARIO_NAO_ENCONTRADO",
+                message="O funcionário informado não foi encontrado.",
+                status_code=404,
+                details=[{
+                    "field":"funcionarioId",
+                    "issue":f"O funcionário com Id {funcionario_id} não existe."
+                }]
+            )
         nova_atualizacao = FuncionarioRepository.update_ferias(funcionario.id, bolv)
         return nova_atualizacao
 
@@ -60,7 +117,15 @@ class RegisterServiceFuncionario:
     def deletar_funcionario(funcionario_id):
         funcionario = FuncionarioRepository.chase_by_id(funcionario_id)
         if funcionario is None:
-            raise ValueError("Funcionário inválido")
+            raise ApiError(
+                error="FUNCIONARIO_NAO_ENCONTRADO",
+                message="O funcionário informado não foi encontrado.",
+                status_code=404,
+                details=[{
+                    "field":"funcionarioId",
+                    "issue":f"O funcionário com Id {funcionario_id} não existe."
+                }]
+            )
         usuario_id = funcionario.usuario_id
         UsuarioRepository.update_perfil(usuario_id, 'CLIENTE')
         return FuncionarioRepository.delete(funcionario.id)

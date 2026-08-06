@@ -14,6 +14,7 @@ from app.repositories.relatorio_repository import RelatorioRepository
 from app.services.promocao_service import PromocaoService
 from app.services.pontos_service import PontosService
 from app.repositories.itempedido_repository import ItemPedidoRepository
+from app.repositories.usuario_repository import UsuarioRepository
 from datetime import datetime, time
 from decimal import Decimal, InvalidOperation
 from app.util.api_error import ApiError
@@ -366,9 +367,19 @@ class PedidoService:
             )
         paginacao = (
             PedidoRepository.show_by_usuario(
-                usuario_id, pedido_id, unidade_id, status,
-                canal_pedido, entrega, data_inicio, data_fim, 
-                valor_min, valor_max, ordenar, page, limit
+                usuario_id=usuario_id, 
+                pedido_id=pedido_id, 
+                unidade_id=unidade_id, 
+                status=status,
+                canal_pedido=canal_pedido, 
+                entrega=entrega, 
+                data_inicio=data_inicio, 
+                data_fim=data_fim, 
+                valor_min=valor_min, 
+                valor_max=valor_max, 
+                ordenar=ordenar, 
+                page=page, 
+                limit=limit
             )
         )
         return {
@@ -406,7 +417,7 @@ class PedidoService:
                     "issues": "Informe um número que seja maior que um."
                 }]
             )
-        if limit is None or 1 > limit > 100:
+        if limit is None or limit < 1 or limit > 100:
             raise ApiError(
                 error="LIMITE_INVALIDO",
                 message="O limite deve ser entre 1 e 100.",
@@ -454,7 +465,7 @@ class PedidoService:
             raise ApiError(
                 error="PEDIDO_NAO_PERTENCE_UNIDADE",
                 message="O pedido informado não pertence à unidade.",
-                status_code=422,
+                status_code=409,
                 details=[{
                     "field": "pedidoId",
                     "issues": f"O pedido{pedido_id} pertence à unidade {pedido.unidade_id}."
@@ -477,10 +488,10 @@ class PedidoService:
             )
         hora_inicio = Conversores.converter_hora(filtros.get("hora_inicio"), "horaInicio")
         hora_fim = Conversores.converter_hora(filtros.get("hora_fim"), "horaFim")
-        if hora_fim is not None and hora_inicio is not None and hora_fim > hora_inicio:
+        if hora_fim is not None and hora_inicio is not None and hora_fim < hora_inicio:
             raise ApiError(
                 error="PERIODO_INVALIDO",
-                message="O horário final não pode ser mais tarde que o horário inicial.",
+                message="O horário inicial não pode ser mais tarde que o horário final.",
                 status_code=422,
                 details=[{
                     "field": "horaInicio",
@@ -518,16 +529,170 @@ class PedidoService:
             }
         }
         
-
     @staticmethod
     def total_vendido(usuario_id):
         funcionario = FuncionarioRepository.chase_by_usuario(usuario_id)
         return PedidoRepository.total_vendido_unidade(funcionario.unidade_id)
 
     @staticmethod
-    def listar_pedidos_abertos(usuario_id, filtros):#########
-        funcionario = FuncionarioRepository.chase_by_usuario(usuario_id)
-        return PedidoRepository.show_today(funcionario.unidade_id)
+    def listar_pedidos_abertos(funcionario_id, filtros):
+        ordenacoes_permitidas={
+            "pedidoId_desc",
+            "pedidoId_asc",
+            "valor_desc",
+            "valor_asc",
+        }
+        page =filtros.get("page", 1)
+        limit = filtros.get("limit", 20)
+        if page is None or page < 1:
+            raise ApiError(
+                error="PAGINA_INVALIDA",
+                message="A página deve ser maior que um.",
+                status_code=422,
+                details=[{
+                    "field": "page",
+                    "issues": "Informe um número que seja maior que um."
+                }]
+            )    
+        if limit is None or limit < 1 or limit > 100:
+            raise ApiError(
+                error="LIMITE_INVALIDO",
+                message="A pagina deve ser um valor maior que 1.",
+                status_code=422,
+                details=[{
+                    "field":"limit",
+                    "issue":"São permitidos valores ente 1 e 100."
+                }]
+            )        
+        unidade_id = Conversores.converter_id(filtros.get("unidade_id"), campo="unidadeId")
+        usuario_id = Conversores.converter_id(filtros.get("usuario_id"), campo="usuarioId")
+        pedido_id = Conversores.converter_id(filtros.get("pedido_id"), campo="pedidoId")
+        funcionario = FuncionarioRepository.chase_by_usuario(funcionario_id)
+        if funcionario.id is None:
+            raise ApiError(
+                error="FUNCIONARIO_NAO_ENCONTRADO",
+                message="O funcionario informado não foi encontrado.",
+                status_code=404,
+                details=[{
+                    "field":"funcionarioId",
+                    "issue":f"Não existe funcionario de Id {funcionario_id}."
+                }]
+            )   
+        if pedido_id is None:
+            raise ApiError(
+                error="PEDIDO_NAO_ENCONTRADO",
+                message="O pedido informado não foi encontrado.",
+                status_code=404,
+                details=[{
+                    "field":"pedidoId",
+                    "issue":f"Não existe pedido de Id {pedido_id}."
+                }]
+            )    
+        pedido = PedidoRepository.chase_by_id(pedido_id)
+        if unidade_id is not None and pedido.unidade_id != unidade_id:
+            raise ApiError(
+                error="PEDIDO_NAO_PERTENCE_UNIDADE",
+                message="O pedido informado não pertence à unidade.",
+                status_code=409,
+                details=[{
+                    "field":"unidadeId",
+                    "issue":f"O pedido {pedido.id} pertence à unidade {pedido.unidade_id}."
+                }]
+            )    
+        if usuario_id is not None and pedido.unidade_id != unidade_id:
+            raise ApiError(
+                error="PEDIDO_NAO_PERTENCE_USUARIO",
+                message="O pedido informado não pertence ao usuário informado.",
+                status_code=409,
+                details=[{
+                    "field":"usuarioId",
+                    "issue":f"O pedido {pedido.id} pertence ao usuário {pedido.usuario_id}."
+                }]
+            )
+        if funcionario.unidade_id != pedido.unidade_id:
+            raise ApiError(
+                error="FUNCIONARIO+SEM_PERMISSAO",
+                message="O funcionário não possui permissao para visualizar o pedido.",
+                status_code=409,
+                details=[{
+                    "field":"funcionarioId",
+                    "issue":f"Um funcionário apenas tem acesso à pedidos de sua respectiva unidade."
+                }]
+            )
+        status = Conversores.converter_enum(filtros.get("status"), enum_class=Status, campo="status")
+        if status is not None and status == Status.FINALIZADO or status == Status.CANCELADO:
+            raise ApiError(
+                error="FUNCIONARIO_SEM_PERMISSAO",
+                message="O funcionário so tem permissão para acessar pedidos em aberto.",
+                status_code=409,
+                details=[]
+            )
+        canal_pedido = Conversores.converter_enum(filtros.get("canal_pedido"), enum_class=LocalPedido, campo="canalPedido")
+        entrega = Conversores.converter_booleano(filtros.get("entrega"), campo="entrega")
+        hora_inicio = Conversores.converter_hora(filtros.get("horario_inicio"), campo="horaInicio")
+        hora_fim = Conversores.converter_hora(filtros.get("horario_fim"), campo="horaroFim")
+        if hora_fim is not None and hora_inicio is not None and hora_fim < hora_inicio:
+            raise ApiError(
+                error="PERIODO_INVALIDO",
+                message="O horário inicial não pode ser mais tarde que o horario final.",
+                status_code=422,
+                details=[{
+                    "field":"horarioInicio",
+                    "issue":"Deve ser menor que o horário final."
+                }]
+            )
+        valor_min = Conversores.converter_decimal(filtros.get("valor_min"), campo="valorMin")
+        valor_max = Conversores.converter_decimal(filtros.get("valor_max"), campo="valorMax")
+        if valor_min is not None and valor_max is not None and valor_min > valor_max:
+            raise ApiError(
+                error="INTERVALO_INVALIDO",
+                message="O valor mínimo deve ser menor ou igual ao máximo.",
+                status_code=422,
+                details=[{
+                    "field": "valorMin",
+                    "issues": "Deve ser menor ou igual ao valor máximo."
+                }]
+            )
+        ordenar = filtros.get("ordenar", "pedidoId_desc")
+        if ordenar not in ordenacoes_permitidas:
+            raise ApiError(
+                error="ORDENACAO_INVALIDA",
+                message="A ordenação informada é inválida.",
+                status_code=422,
+                details=[{
+                    "field": "ordenar",
+                    "issues": "Valores permitidos: " + ", ".join(ordenacoes_permitidas)
+                }]
+            )
+        unidade_id = funcionario.unidade_id
+        paginacao = (PedidoRepository.show_today(
+            unidade_id=unidade_id, 
+            usuario_id=usuario_id, 
+            hora_inicio=hora_inicio, 
+            hora_fim=hora_fim, 
+            status=status, 
+            entrega=entrega,
+            canal_pedido=canal_pedido, 
+            valor_min=valor_min, 
+            valor_max=valor_max, 
+            ordenar=ordenar, 
+            page=page, 
+            limit=limit
+            ))
+        return{
+            "pedidos":[
+                pedido.to_dict()
+                for pedido in paginacao.items
+            ],
+            "meta": {
+                "page": paginacao.page,
+                "limit": limit,
+                "totalItems": paginacao.total,
+                "totalPages": paginacao.pages,
+                "hasNext": paginacao.has_next,
+                "hasPrevious": paginacao.has_prev
+            }
+        }
 
     @staticmethod
     def produto_mais_vendido(usuario_id):

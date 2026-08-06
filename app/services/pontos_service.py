@@ -2,6 +2,7 @@ from app.models.pontos import Pontos
 from app.repositories.usuario_repository import UsuarioRepository
 from app.repositories.pontos_repository import PontosRepository
 from decimal import Decimal, ROUND_HALF_UP
+from app.util.api_error import ApiError
 
 class PontosService:
 
@@ -19,10 +20,23 @@ class PontosService:
     def acumular_pontos(pedido):
         usuario = UsuarioRepository.chase_by_id(pedido.usuario_id)
         if usuario is None:
-            raise ValueError("Usuario inexistente")
+            raise ApiError(
+                error="USUARIO_NAO_ENCONTRADO",
+                message="O usuário informado não foi encontrado.",
+                status_code=404,
+                details=[{
+                    "field":"usuarioId",
+                    "issue":f"O usuário com Id {pedido.usuario_id} não existe."
+                }]
+            )
         movimentacao_existente = (PontosRepository.chase_by_pedido(pedido.id))
         if movimentacao_existente is not None:
-            raise ValueError("Os pontos deste pedido já foram registrados")
+            raise ApiError(
+                error="PONTOS_JA_REGISTRADOS",
+                message="Os pontos deste pedido já foram registrados.",
+                status_code=422,
+                details=[]
+            )
         pontos_ganhos = int(pedido.volume)
 
         usuario.pontos_disponivel += pontos_ganhos
@@ -42,8 +56,15 @@ class PontosService:
     def consultar_saldo(usuario_id):
         usuario = UsuarioRepository.chase_by_id(usuario_id)
         if usuario is None:
-            raise ValueError("Usuário inexistente")
-
+            raise ApiError(
+                error="USUARIO_NAO_ENCONTRADO",
+                message="O usuário informado não foi encontrado.",
+                status_code=404,
+                details=[{
+                    "field":"usuarioId",
+                    "issue":f"O usuário com Id {usuario_id} não existe."
+                }]
+            )
         desconto = (Decimal(usuario.pontos_disponivel) * Decimal("0.10")
         ).quantize(Decimal("0.01"))
 
@@ -58,13 +79,42 @@ class PontosService:
     def utilizar_pontos(usuario_id, pedido, pontos_solicitado):
         usuario = UsuarioRepository.chase_by_id(usuario_id)
         if usuario is None:
-            raise ValueError("Usuário inexistente")
-        if usuario.pontos_disponivel < 50:
-            raise ValueError("É necessário ter R$5,00 ou mais acumulados")
+            raise ApiError(
+                error="USUARIO_NAO_ENCONTRADO",
+                message="O usuário informado não foi encontrado.",
+                status_code=404,
+                details=[{
+                    "field":"usuarioId",
+                    "issue":f"O usuário com Id {usuario_id} não existe."
+                }]
+            )
+        if usuario.pontos_disponivel <= 50:
+            raise ApiError(
+                error="SALDO_INSUFICIENTE",
+                message="O saldo de pontos para uso é insuficiente.",
+                status_code=409,
+                details=[{
+                    "field":"pontosDisponivel",
+                    "issue":f"São necessários 50 pontos ou mais acumulados para utilizar, você possui {usuario.pontos_disponivel} ."
+                }]
+            )
         if pontos_solicitado <= 0 :
-            raise ValueError("Quantidade inválida")
+            raise ApiError(
+                error="QUANTIDADE_INVALIDA",
+                message="A quantidade informada é inválida.",
+                status_code=422,
+                details=[{
+                    "field":"pontosSolicitados",
+                    "issue":"São aceitos apenas valores acima de 0."
+                }]
+            )
         if pontos_solicitado > usuario.pontos_disponivel:
-            raise ValueError("Saldo de pontos insuficiente")
+            raise ApiError(
+                error="SALDO_INSUFICIENTE",
+                message="O saldo de pontos do usuário é inuficiente.",
+                status_code=409,
+                details=[]
+            )
         desconto = (Decimal(pontos_solicitado)*Decimal("0.10")).quantize(Decimal("0.01"))
         total_pedido = Decimal(str(pedido.total))
         usuario.pontos_disponivel -= pontos_solicitado

@@ -28,3 +28,13 @@ class Produto(db.Model):
         cascade= "all, delete-orphan",
         passive_deletes=True
     )
+
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "nome": self.nome,
+            "descricao": self.descricao,
+            "preco": self.preco,
+            "categoria": self.categoria
+        }

@@ -1,4 +1,5 @@
 from app.models.produto import Produto
+from app.util.api_error import ApiError
 from app.database import db
 
 class ProdutoRepository:
@@ -29,7 +30,15 @@ class ProdutoRepository:
     def update_value(produto_id: int, newValue: float):
         produto = Produto.query.get(produto_id)
         if produto is None:
-            raise ValueError("Produto inexistente")
+            raise ApiError(
+                error="PRODUTO_NAO_ENCONTRADO",
+                message="O produto informado não foi encontrado.",
+                status_code=404,
+                details=[{
+                    "field":"produtoId",
+                    "issue":f"O produto de Id {produto_id} não existe."
+                }]
+            )
         produto.preco = newValue
         return produto
 

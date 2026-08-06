@@ -123,11 +123,11 @@ class EstoqueService:
         if limit is None or limit < 1 or limit > 100:
             raise ApiError(
                 error="LIMITE_INVALIDO",
-                message="O limite deve ser um número entre 0 e 100.",
+                message="O limite deve ser um número entre 1 e 100.",
                 status_code=422,
                 details=[{
                     "field": "limit",
-                    "issue": "Somente são permitidos valores de 0 até 100."
+                    "issue": "Somente são permitidos valores de 1 até 100."
                 }]
             )
         nome = filtros.get("nome")

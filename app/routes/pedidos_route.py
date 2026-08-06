@@ -215,20 +215,20 @@ def historico_cliente_adm(usuario_id):
 @perfil_required("ADMINISTRADOR", "GERENCIA", "GESTAO")
 def pedidos_hoje():
     filtros = {
-        "unidade_id": request.args.get("unidadeId"),##
-        "status": request.args.get("status"),##
-        "pedido_id": request.args.get("pedidoId"),##
-        "entrega": request.args.get("entrega"),##
-        "canal_pedido": request.args.get("canalPedido"),##
-        "valor_min": request.args.get("valorMin"),#
-        "valor_max": request.args.get("valorMax"),#
+        "unidade_id": request.args.get("unidadeId"),
+        "status": request.args.get("status"),
+        "pedido_id": request.args.get("pedidoId"),
+        "entrega": request.args.get("entrega"),
+        "canal_pedido": request.args.get("canalPedido"),
+        "valor_min": request.args.get("valorMin"),
+        "valor_max": request.args.get("valorMax"),
         "hora_inicio": request.args.get("horaInicio"),
         "hora_fim": request.args.get("horaFim"),
-        "ordenar": request.args.get("page", default="pedidoId_desc"),###
-        "page": request.args.get("page", default=1, type=int),###
-        "limit": request.args.get("limit", default=20, type=int)###
+        "ordenar": request.args.get("page", default="pedidoId_desc"),
+        "page": request.args.get("page", default=1, type=int),
+        "limit": request.args.get("limit", default=20, type=int)
     }
-    usuario_id = get_jwt_identity()
+    usuario_id = int(get_jwt_identity())
     total = PedidoService.total_vendido(usuario_id)
     mais_vendido = PedidoService.produto_mais_vendido(usuario_id)
     pedidos = PedidoService.listar_pedidos_hoje(usuario_id, filtros)
@@ -247,13 +247,30 @@ def pedidos_hoje():
 #APENAS OS PEDIDOS EM ABEEERRTOOOO
 @pedido_bp.get('/funcionarios/pedidos/em_aberto')
 @perfil_required('ADMINISTRADOR', 'GERENCIA', 'ATENDENTE', 'COZINHEIRO', "GESTAO")
-def pedidos_abertos():####INSERIR FILTROS########
-
-    usuario_id = get_jwt_identity()
-    pedidos = PedidoService.listar_pedidos_abertos(usuario_id)
-    return jsonify([
-    pedido.to_dict() for pedido in pedidos 
-        ]), 200
+def pedidos_abertos():
+    filtros={
+        "unidade_id": request.args.get("unidadeId"),
+        "usuario_id": request.args.get("usuarioId"),
+        "pedido_id": request.args.get("pedidoId"),
+        "horario_inicio": request.args.get("horaInicio"),
+        "horario_fim": request.args.get("horaFim"),
+        "status": request.args.get("status"),
+        "entrega": request.args.get("entrega"),
+        "canal_pedido": request.args.get("canalPedido"),
+        "valor_min": request.args.get("valorMin"),
+        "valor_max": request.args.get("valorMax"),
+        "ordenar": request.args.get("ordenar", default="pedidoId_desc"),
+        "page": request.args.get("page", default=1, type=int),
+        "limit": request.args.get("limit", default=20, type=int)
+    }
+    usuario_id = int(get_jwt_identity())
+    pedidos = PedidoService.listar_pedidos_abertos(usuario_id, filtros)
+    return resposta_sucesso(
+        message="Histórico de pedidos em aberto consultado com sucesso!",
+        data=pedidos["pedidos"],
+        meta=pedidos["meta"],
+        status_code=200
+    )
    
 
 @pedido_bp.delete('/pedidos/<int:pedido_id>/itens/<int:itempedido_id>/delete')

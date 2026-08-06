@@ -105,18 +105,43 @@ class PedidoRepository:
 
     
     @staticmethod
-    def show_today(unidade_id):
+    def show_today(
+        unidade_id, status,usuario_id=None, hora_inicio=None, hora_fim=None,
+        entrega=None, canal_pedido=None, valor_min=None, valor_max=None,
+        ordenar = "pedidoId_desc", page = 1, limit = 20):
         inicio = datetime.combine(datetime.today(), time.min)
         fim = datetime.combine(datetime.today(), time.max)
-        return (
-            Pedido.query.filter(
+        query = Pedido.query.filter(
                 Pedido.data_pedido.between(inicio, fim),
-                Pedido.status != Status.FINALIZADO,
-                Pedido.status != Status.CANCELADO,
+                Pedido.status == status,
                 Pedido.unidade_id == unidade_id
-            ).all()
+            )
+        if usuario_id is not None:
+            query = query.filter(Pedido.usuario_id == usuario_id)
+        if hora_inicio is not None:
+            query = query.filter(cast(Pedido.data_pedido, Time) >= hora_inicio)
+        if hora_fim is not None:
+            query = query.filter(cast(Pedido.data_pedido, Time) <= hora_fim)
+        if entrega is not None:
+            query = query.filter(Pedido.entrega == entrega)
+        if canal_pedido is not None:
+            query = query.filter(Pedido.local_pedido == canal_pedido)
+        if valor_min is not None:
+            query = query.filter(Pedido.total >= valor_min)
+        if valor_max is not None:
+            query = query.filter(Pedido.total <= valor_max)
+        ordenacoes = {
+            "pedidoId_dec": Pedido.id.desc(),
+            "pedidoId_asc": Pedido.id.asc(),
+            "valor_dec": Pedido.total.desc(),
+            "valor_dec": Pedido.total.asc()
+        }
+        query = query.order_by(ordenacoes[ordenar])
+        return query.paginate (
+            page=page,
+            per_page=limit,
+            error_out=False
         )
-
 
     @staticmethod
     def total_vendido_unidade(unidade_id):
