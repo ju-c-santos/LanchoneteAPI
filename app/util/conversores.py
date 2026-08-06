@@ -1,19 +1,3 @@
-from app.models.pedido import Pedido
-from app.models.item_pedido import ItemPedido
-from app.models.status import Status
-from app.models.pontos import Pontos
-from app.models.local_pedido import LocalPedido
-from app.services.estoque_service import EstoqueService
-from app.repositories.unidade_repository import UnidadeRepository
-from app.repositories.pedido_repository import PedidoRepository
-from app.repositories.estoque_repository import EstoqueRepository
-from app.repositories.pagamento_repository import PagamentoRepository
-from app.repositories.pontos_repository import PontosRepository
-from app.repositories.funcionario_repository import FuncionarioRepository
-from app.repositories.relatorio_repository import RelatorioRepository
-from app.services.promocao_service import PromocaoService
-from app.services.pontos_service import PontosService
-from app.repositories.itempedido_repository import ItemPedidoRepository
 from datetime import datetime, time
 from decimal import Decimal, InvalidOperation
 from app.util.api_error import ApiError
