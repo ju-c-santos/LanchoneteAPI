@@ -159,10 +159,10 @@ class ProdutoService:
             page=page, 
             limit=limit))
         return {
-            "produtos":{
-                produtos.to_dict()
-                for produtos in paginacao.items
-            },
+            "historico":[
+                registro.to_dict()
+                for registro in paginacao.items                
+            ],
             "meta": {
                 "page": paginacao.page,
                 "limit": limit,

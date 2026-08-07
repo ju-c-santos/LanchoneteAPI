@@ -61,7 +61,7 @@ def create_app():
             request.headers.get("Request-ID") or str(uuid4())
         )
 
-    @app.before_request
+    @app.after_request
     def adicionar_request_id(response):
         response.headers["Request-ID"] = (
             g.request_id

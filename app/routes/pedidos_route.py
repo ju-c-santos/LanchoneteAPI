@@ -212,7 +212,7 @@ def historico_cliente_adm(usuario_id):
 
 #MOSTRA TODOS OS PEDIDOS DO DIIIIAAAAA
 @pedido_bp.get('/admin/pedidos')
-@perfil_required("ADMINISTRADOR", "GERENCIA", "GESTAO")
+@perfil_required("ADMINISTRADOR", "GERENCIA")
 def pedidos_hoje():
     filtros = {
         "unidade_id": request.args.get("unidadeId"),
@@ -246,7 +246,7 @@ def pedidos_hoje():
 
 #APENAS OS PEDIDOS EM ABEEERRTOOOO
 @pedido_bp.get('/funcionarios/pedidos/em_aberto')
-@perfil_required('ADMINISTRADOR', 'GERENCIA', 'ATENDENTE', 'COZINHEIRO', "GESTAO")
+@perfil_required('ADMINISTRADOR', 'GERENCIA', 'ATENDENTE', 'COZINHEIRO')
 def pedidos_abertos():
     filtros={
         "unidade_id": request.args.get("unidadeId"),

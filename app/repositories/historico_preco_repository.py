@@ -18,7 +18,7 @@ class HistoricoPrecoRepository:
         produto_id=None, nome=None, categoria=None, data_inicio=None, data_fim=None,
         valor_novo_min=None, valor_novo_max=None, ordenar="produtoId_desc", page=1, limit=20
     ):
-        query = HistoricoPreco.query
+        query = HistoricoPreco.query.join(Produto, Produto.id == HistoricoPreco.produto_id)
         if produto_id is not None:
             query = query.filter(HistoricoPreco.produto_id == produto_id)
         if nome is not None:

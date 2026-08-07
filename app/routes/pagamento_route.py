@@ -24,14 +24,14 @@ def pagamento(id_pedido):
                 "issue": f"Métodos de pagamento aceitos:" + ",".join(MetodoPagamento[MetodoPagamento])
             }]
         ) 
-    pagamento = PagamentoService.mock_pagamento(id_pedido, id_usuario, metodo)
+    pagamento = PagamentoService.mock_pagamento(id_pedido, id_usuario, dados)
     return resposta_sucesso(
         message="Item do pedido foi alterado com sucesso!",
         status_code=201,
         data={
             "usuarioId": id_usuario,
             "pedidoId": id_pedido,
-            "metodoPagamento": pagamento.metodo,
+            "metodoPagamento": pagamento.metodo.value,
             "aprovado": pagamento.aprovado,
             "codigo": pagamento.codigo,
         }

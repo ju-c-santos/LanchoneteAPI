@@ -288,21 +288,7 @@ class PedidoService:
                 }]
             )
         unidade_id = Conversores.converter_id(filtros.get("unidade_id"), campo="unidadeId")
-        if unidade_id is not None:
-            unidade = UnidadeRepository.chase_by_id(unidade_id)
-        
-        if unidade is None:
-            raise ApiError(
-                error="UNIDADE_NAO_ENCONTRADA",
-                message="A unidde informada não foi encontrada.",
-                status_code=404,
-                details=[{
-                    "fields":"unidadeId",
-                    "issue": f"Não existe unidade com o Id {unidade_id}."
-                }]
-            )
-
-        pedido_id = Conversores.converter_id(filtros.get("pedido_id", campo="pedidoId"))
+        pedido_id = Conversores.converter_id(filtros.get("pedido_id"), campo="pedidoId")
         if pedido_id is not None:
             pedido = PedidoRepository.chase_by_id_user(pedido_id, usuario_id)
             if pedido is None:
@@ -327,8 +313,8 @@ class PedidoService:
                         "issue":f"O pedido {pedido_id} pertence à unidade {pedido.unidade_id}"
                     }]
                 )
-        data_inicio = Conversores.converter_data(filtros.get(data_inicio), "dataInicio", False) #este inicia de manhâ
-        data_fim = Conversores.converter_data(filtros.get(data_fim), "dataFim", True)# este vai até o fim do dia
+        data_inicio = Conversores.converter_data(filtros.get("data_inicio"), "dataInicio", False) #este inicia de manhâ
+        data_fim = Conversores.converter_data(filtros.get("data_fim"), "dataFim", True)# este vai até o fim do dia
         if data_inicio is not None and data_fim is not None and data_inicio > data_fim:
             raise ApiError(
                 error="PERIODO_INVALIDO",
@@ -339,11 +325,11 @@ class PedidoService:
                     "issue":"A data inicial deve ser aterior à data final."
                 }]
             )
-        status = Conversores.converter_enum(filtros.get("canal_pedido"), Status, "status")
-        canal_pedido = Conversores.converter_enum(filtros.get("canal_pedido", LocalPedido, "canalPedido"))
-        entrega = Conversores.converter_booleano(filtros.get("entrega", "entrega"))
-        valor_min = Conversores.converter_decimal(filtros.get("valor_min", "ValorMin"))
-        valor_max = Conversores.converter_decimal(filtros.get("valor_max", "ValorMax"))
+        status = Conversores.converter_enum(filtros.get("status"), Status, "status")
+        canal_pedido = Conversores.converter_enum(filtros.get("canal_pedido"), LocalPedido, "canalPedido")
+        entrega = Conversores.converter_booleano(filtros.get("entrega"), "entrega")
+        valor_min = Conversores.converter_decimal(filtros.get("valor_min"), "ValorMin")
+        valor_max = Conversores.converter_decimal(filtros.get("valor_max"), "ValorMax")
         if valor_min is not None and valor_max is not None and valor_min > valor_max:
             raise ApiError(
                 error="INTERVALO_INVALIDO",
@@ -367,9 +353,9 @@ class PedidoService:
             )
         paginacao = (
             PedidoRepository.show_by_usuario(
+                unidade_id=unidade_id,
                 usuario_id=usuario_id, 
-                pedido_id=pedido_id, 
-                unidade_id=unidade_id, 
+                pedido_id=pedido_id,  
                 status=status,
                 canal_pedido=canal_pedido, 
                 entrega=entrega, 
@@ -399,127 +385,263 @@ class PedidoService:
 
     @staticmethod
     def listar_pedidos_hoje(usuario_id, filtros):
-        ordenacoes_permitidas ={
+        ordenacoes_permitidas = {
             "pedidoId_asc",
             "pedidoId_desc",
             "valor_asc",
             "valor_desc"
         }
+
         page = filtros.get("page", 1)
         limit = filtros.get("limit", 20)
+
         if page is None or page < 1:
             raise ApiError(
                 error="PAGINA_INVALIDA",
-                message="A página deve ser maior que um.",
+                message="A página deve ser maior que zero.",
                 status_code=422,
-                details=[{
-                    "field": "page",
-                    "issues": "Informe um número que seja maior que um."
-                }]
+                details=[
+                    {
+                        "field": "page",
+                        "issue": "Informe um número inteiro maior que zero."
+                    }
+                ]
             )
+
         if limit is None or limit < 1 or limit > 100:
             raise ApiError(
                 error="LIMITE_INVALIDO",
-                message="O limite deve ser entre 1 e 100.",
+                message="O limite deve estar entre 1 e 100.",
                 status_code=422,
-                details=[{
-                    "field": "limit",
-                    "issues": "São valores permitidos: 1 até 100."
-                }]
+                details=[
+                    {
+                        "field": "limit",
+                        "issue": "São permitidos valores entre 1 e 100."
+                    }
+                ]
             )
-        unidade_id = Conversores.converter_id(filtros.get("unidade_id"), "unidadeId")
-        funcionario = FuncionarioRepository.chase_by_usuario(usuario_id)
-        if unidade_id is None:
+
+        funcionario = FuncionarioRepository.chase_by_usuario(
+            usuario_id
+        )
+
+        if funcionario is None:
             raise ApiError(
-                error="UNIDADE_NAO_ENCONTRADA",
-                message="A unidade informada não foi encontrada.",
+                error="FUNCIONARIO_NAO_ENCONTRADO",
+                message="O usuário não possui cadastro de funcionário.",
                 status_code=404,
-                details=[{
-                    "field": "unidadeId",
-                    "issues": f"Não existe unidade com Id {unidade_id}."
-                }]
+                details=[
+                    {
+                        "field": "usuarioId",
+                        "issue": (
+                            f"O usuário {usuario_id} não está "
+                            "cadastrado como funcionário."
+                        )
+                    }
+                ]
             )
-        if funcionario.id is not None and funcionario.unidade_id != unidade_id:
+
+        if funcionario.unidade_id is None:
+            raise ApiError(
+                error="FUNCIONARIO_SEM_UNIDADE",
+                message="O funcionário não está vinculado a uma unidade.",
+                status_code=409,
+                details=[
+                    {
+                        "field": "unidadeId",
+                        "issue": "Vincule o funcionário a uma unidade."
+                    }
+                ]
+            )
+
+        unidade_solicitada_id = Conversores.converter_id(
+            filtros.get("unidade_id"),
+            campo="unidadeId"
+        )
+
+        if (
+            unidade_solicitada_id is not None
+            and unidade_solicitada_id != funcionario.unidade_id
+        ):
             raise ApiError(
                 error="FUNCIONARIO_SEM_PERMISSAO",
-                message="Funcionário sem permissão para visualizar histórico.",
-                status_code=409,
-                details=[{
-                    "field": "usuarioId",
-                    "issues": "Um funcionário só pode ter acesso ao histórico de pedidos de sua própia unidade."
-                }]
+                message=(
+                    "O funcionário não possui permissão para "
+                    "consultar pedidos dessa unidade."
+                ),
+                status_code=403,
+                details=[
+                    {
+                        "field": "unidadeId",
+                        "issue": (
+                            "O funcionário só pode consultar "
+                            "pedidos da própria unidade."
+                        )
+                    }
+                ]
             )
-        pedido_id = Conversores.converter_id(filtros.get("pedido_id"))
-        if pedido_id is None:
-            raise ApiError(
-                error="PEDIDO_NAO_ENCONTRADO",
-                message="O pedido informado não foi encontrado.",
-                status_code=404,
-                details=[{
-                    "field": "pedidoId",
-                    "issues": f"O pedido {pedido_id} não existe."
-                }]
-            )
-        pedido = PedidoRepository.chase_by_id(pedido_id)
-        if unidade_id is not None and pedido.unidade_id != unidade_id:
-            raise ApiError(
-                error="PEDIDO_NAO_PERTENCE_UNIDADE",
-                message="O pedido informado não pertence à unidade.",
-                status_code=409,
-                details=[{
-                    "field": "pedidoId",
-                    "issues": f"O pedido{pedido_id} pertence à unidade {pedido.unidade_id}."
-                }]
-            )
-        status = Conversores.converter_enum(filtros.get("status"), Status, "status")
-        canal_pedido = Conversores.converter_enum(filtros.get("canal_pedido"), LocalPedido, "canalPedido")
-        entrega = Conversores.converter_booleano(filtros.get("entrega"), "entrega")
-        valor_min = Conversores.converter_decimal(filtros.get("valor_min"), "valorMin")
-        valor_max = Conversores.converter_decimal(filtros.get("valor_max"), "valorMax")
-        if valor_min is not None and valor_max is not None and valor_min > valor_max:
+
+        pedido_id = Conversores.converter_id(
+            filtros.get("pedido_id"),
+            campo="pedidoId"
+        )
+
+        usuario_filtro_id = Conversores.converter_id(
+            filtros.get("usuario_id"),
+            campo="usuarioId"
+        )
+
+        if pedido_id is not None:
+            pedido = PedidoRepository.chase_by_id(pedido_id)
+
+            if pedido is None:
+                raise ApiError(
+                    error="PEDIDO_NAO_ENCONTRADO",
+                    message="O pedido informado não foi encontrado.",
+                    status_code=404,
+                    details=[
+                        {
+                            "field": "pedidoId",
+                            "issue": (
+                                f"Não existe pedido com o ID {pedido_id}."
+                            )
+                        }
+                    ]
+                )
+
+            if pedido.unidade_id != funcionario.unidade_id:
+                raise ApiError(
+                    error="PEDIDO_NAO_PERTENCE_UNIDADE",
+                    message="O pedido não pertence à unidade do funcionário.",
+                    status_code=403,
+                    details=[
+                        {
+                            "field": "pedidoId",
+                            "issue": (
+                                f"O pedido {pedido.id} pertence à unidade "
+                                f"{pedido.unidade_id}."
+                            )
+                        }
+                    ]
+                )
+
+        status = Conversores.converter_enum(
+            filtros.get("status"),
+            Status,
+            "status"
+        )
+
+        canal_pedido = Conversores.converter_enum(
+            filtros.get("canal_pedido"),
+            LocalPedido,
+            "canalPedido"
+        )
+
+        entrega = Conversores.converter_booleano(
+            filtros.get("entrega"),
+            "entrega"
+        )
+
+        valor_min = Conversores.converter_decimal(
+            filtros.get("valor_min"),
+            "valorMin"
+        )
+
+        valor_max = Conversores.converter_decimal(
+            filtros.get("valor_max"),
+            "valorMax"
+        )
+
+        if (
+            valor_min is not None
+            and valor_max is not None
+            and valor_min > valor_max
+        ):
             raise ApiError(
                 error="INTERVALO_INVALIDO",
                 message="O valor mínimo deve ser menor ou igual ao máximo.",
                 status_code=422,
-                details=[{
-                    "field": "valorMin",
-                    "issues": "Deve ser menor ou igual ao valor máximo."
-                }]
+                details=[
+                    {
+                        "field": "valorMin",
+                        "issue": "Deve ser menor ou igual ao valor máximo."
+                    }
+                ]
             )
-        hora_inicio = Conversores.converter_hora(filtros.get("hora_inicio"), "horaInicio")
-        hora_fim = Conversores.converter_hora(filtros.get("hora_fim"), "horaFim")
-        if hora_fim is not None and hora_inicio is not None and hora_fim < hora_inicio:
+
+        hora_inicio = Conversores.converter_hora(
+            filtros.get("hora_inicio"),
+            "horaInicio"
+        )
+
+        hora_fim = Conversores.converter_hora(
+            filtros.get("hora_fim"),
+            "horaFim"
+        )
+
+        if (
+            hora_inicio is not None
+            and hora_fim is not None
+            and hora_inicio > hora_fim
+        ):
             raise ApiError(
                 error="PERIODO_INVALIDO",
-                message="O horário inicial não pode ser mais tarde que o horário final.",
+                message=(
+                    "O horário inicial não pode ser posterior "
+                    "ao horário final."
+                ),
                 status_code=422,
-                details=[{
-                    "field": "horaInicio",
-                    "issues": "Deve ser menor que o horário final."
-                }]
+                details=[
+                    {
+                        "field": "horaInicio",
+                        "issue": "Deve ser menor ou igual ao horário final."
+                    }
+                ]
             )
-        ordenar = filtros.get("ordenar", "pedidoId_desc")
+
+        ordenar = filtros.get(
+            "ordenar",
+            "pedidoId_desc"
+        )
+
         if ordenar not in ordenacoes_permitidas:
             raise ApiError(
-                error="ORENACAO_INVALIDA",
+                error="ORDENACAO_INVALIDA",
                 message="A ordenação informada é inválida.",
                 status_code=422,
-                details=[{
-                    "field": "ordenar",
-                    "issues": "Valores permitidos: " + ", ".join(ordenacoes_permitidas)
-                }]
+                details=[
+                    {
+                        "field": "ordenar",
+                        "issue": (
+                            "Valores permitidos: "
+                            + ", ".join(sorted(ordenacoes_permitidas))
+                        )
+                    }
+                ]
             )
-        unidade_id = funcionario.unidade_id
-        paginacao = (PedidoRepository.show_today_all(
-            usuario_id, pedido_id, unidade_id, status, canal_pedido,
-            entrega, hora_inicio, hora_fim, valor_min, valor_max, ordenar, page, limit  
-            ))
-        return{
-            "pedidos":[
+
+        paginacao = PedidoRepository.show_today_all(
+            unidade_id=funcionario.unidade_id,
+            usuario_id=usuario_filtro_id,
+            pedido_id=pedido_id,
+            status=status,
+            canal_pedido=canal_pedido,
+            entrega=entrega,
+            hora_inicio=hora_inicio,
+            hora_fim=hora_fim,
+            valor_min=valor_min,
+            valor_max=valor_max,
+            ordenar=ordenar,
+            page=page,
+            limit=limit
+        )
+
+        return {
+            "pedidos": [
                 pedido.to_dict()
                 for pedido in paginacao.items
             ],
-            "meta":{
+            "meta": {
                 "page": paginacao.page,
                 "limit": limit,
                 "totalItems": paginacao.total,
@@ -578,47 +700,50 @@ class PedidoService:
                     "issue":f"Não existe funcionario de Id {funcionario_id}."
                 }]
             )   
-        if pedido_id is None:
+        if funcionario.unidade_id is None:
             raise ApiError(
-                error="PEDIDO_NAO_ENCONTRADO",
-                message="O pedido informado não foi encontrado.",
-                status_code=404,
-                details=[{
-                    "field":"pedidoId",
-                    "issue":f"Não existe pedido de Id {pedido_id}."
-                }]
-            )    
-        pedido = PedidoRepository.chase_by_id(pedido_id)
-        if unidade_id is not None and pedido.unidade_id != unidade_id:
+                error="FUNCIONARIO_SEM_UNIDADE",
+                message="O funcionário não está vinculado a uma unidade.",
+                status_code=409,
+                details=[
+                    {
+                        "field": "unidadeId",
+                        "issue": "Vincule o funcionário a uma unidade."
+                    }
+                ]
+            )
+        if unidade_id is not None and pedido_id is not None and pedido.unidade_id != unidade_id:
+            pedido = PedidoRepository.chase_by_id(pedido_id)  
+            if funcionario.unidade_id != pedido.unidade_id:
+                raise ApiError(
+                    error="FUNCIONARIO+SEM_PERMISSAO",
+                    message="O funcionário não possui permissao para visualizar o pedido.",
+                    status_code=409,
+                    details=[{
+                        "field":"funcionarioId",
+                        "issue":f"Um funcionário apenas tem acesso à pedidos de sua respectiva unidade."
+                        }]
+                ) 
+            if usuario_id is not None and pedido.unidade_id != unidade_id:
+                raise ApiError(
+                    error="PEDIDO_NAO_PERTENCE_USUARIO",
+                    message="O pedido informado não pertence ao usuário informado.",
+                    status_code=409,
+                    details=[{
+                        "field":"usuarioId",
+                        "issue":f"O pedido {pedido.id} pertence ao usuário {pedido.usuario_id}."
+                    }]
+                )              
+                      
             raise ApiError(
-                error="PEDIDO_NAO_PERTENCE_UNIDADE",
+                error="ACESSO_NEGADO",
                 message="O pedido informado não pertence à unidade.",
                 status_code=409,
                 details=[{
                     "field":"unidadeId",
                     "issue":f"O pedido {pedido.id} pertence à unidade {pedido.unidade_id}."
                 }]
-            )    
-        if usuario_id is not None and pedido.unidade_id != unidade_id:
-            raise ApiError(
-                error="PEDIDO_NAO_PERTENCE_USUARIO",
-                message="O pedido informado não pertence ao usuário informado.",
-                status_code=409,
-                details=[{
-                    "field":"usuarioId",
-                    "issue":f"O pedido {pedido.id} pertence ao usuário {pedido.usuario_id}."
-                }]
-            )
-        if funcionario.unidade_id != pedido.unidade_id:
-            raise ApiError(
-                error="FUNCIONARIO+SEM_PERMISSAO",
-                message="O funcionário não possui permissao para visualizar o pedido.",
-                status_code=409,
-                details=[{
-                    "field":"funcionarioId",
-                    "issue":f"Um funcionário apenas tem acesso à pedidos de sua respectiva unidade."
-                }]
-            )
+            )           
         status = Conversores.converter_enum(filtros.get("status"), enum_class=Status, campo="status")
         if status is not None and status == Status.FINALIZADO or status == Status.CANCELADO:
             raise ApiError(

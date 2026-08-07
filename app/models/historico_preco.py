@@ -27,3 +27,13 @@ class HistoricoPreco(db.Model):
         "Usuario",
         back_populates="historico_preco"
     )
+
+    def to_dict(self):
+        return {
+            "historicoId": self.id,
+            "produtoId": self.produto_id,
+            "usuarioId": self.usuario_id,
+            "precoAnterior": str(self.preco_anterior),
+            "precoNovo": str(self.preco_novo),
+            "dataAlteracao": (self.data_alteracao.isoformat() if self.data_alteracao else None)
+        }

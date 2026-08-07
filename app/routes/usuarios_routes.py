@@ -75,7 +75,6 @@ def atualizar_cadastro(usuario_id):
         status_code=200
     )
 
-
 @usuario_bp.patch("/admin/usuarios/ativar-cadastro/<int:usuario_id>")
 @perfil_required("ADMINISTRADOR", "GESTAO")
 def ativar_cadastro(usuario_id):
@@ -94,8 +93,6 @@ def ativar_cadastro(usuario_id):
         message="Cadastro ativado com sucesso.",
         status_code=200
     )
-
-
 
 @usuario_bp.patch("/admin/usuarios/desativar-cadastro/<int:usuario_id>")
 @perfil_required("ADMINISTRADOR", "GESTAO")
@@ -137,7 +134,6 @@ def pontos_disponiveis():
         status_code=200
     )
 
-
 @usuario_bp.get('/<int:usuario_id>/consulta/saldo')
 @perfil_required("CLIENTE", "GERENTE", "ADMINISTRADOR", "GESTAO")
 def consultar_pontos(usuario_id):
@@ -157,7 +153,6 @@ def consultar_pontos(usuario_id):
         data= registros,
         status_code=200
     )
-
 
 @usuario_bp.delete('/usuario/<int:usuario_id>/delete')
 @perfil_required("ADMINISTRADOR", "CLIENTE", "GESTAO")

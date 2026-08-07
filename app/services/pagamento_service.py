@@ -49,7 +49,7 @@ class PagamentoService:
 
         pagamento = Pagamento(
             pedido_id = pedido.id,
-            metodo = metodo,
+            metodo = metodo.value,
             valor = pedido.total,
             aprovado = aprovado,
             codigo = str(uuid.uuid4())[:10] #gera um código único para o pagamento

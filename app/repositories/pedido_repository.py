@@ -63,8 +63,19 @@ class PedidoRepository:
 
     @staticmethod
     def show_today_all(
-        unidade_id, usuario_id=None, pedido_id=None, status=None, canal_pedido=None, entrega=None, 
-        hora_inicio=None, hora_fim=None, valor_min=None, valor_max=None, ordenar="pedidoId_desc", page=1, limit=20
+        unidade_id, 
+        usuario_id=None, 
+        pedido_id=None, 
+        status=None, 
+        canal_pedido=None, 
+        entrega=None, 
+        hora_inicio=None, 
+        hora_fim=None, 
+        valor_min=None, 
+        valor_max=None, 
+        ordenar="pedidoId_desc", 
+        page=1, 
+        limit=20
         ):
         inicio = datetime.combine(datetime.today(), time.min)
         fim = datetime.combine(datetime.today(), time.max)
@@ -113,8 +124,8 @@ class PedidoRepository:
         fim = datetime.combine(datetime.today(), time.max)
         query = Pedido.query.filter(
                 Pedido.data_pedido.between(inicio, fim),
-                Pedido.status == status,
-                Pedido.unidade_id == unidade_id
+                Pedido.unidade_id == unidade_id,
+                Pedido.status.notin_([Status.FINALIZADO, Status.CANCELADO])
             )
         if usuario_id is not None:
             query = query.filter(Pedido.usuario_id == usuario_id)
@@ -131,10 +142,10 @@ class PedidoRepository:
         if valor_max is not None:
             query = query.filter(Pedido.total <= valor_max)
         ordenacoes = {
-            "pedidoId_dec": Pedido.id.desc(),
+            "pedidoId_desc": Pedido.id.desc(),
             "pedidoId_asc": Pedido.id.asc(),
-            "valor_dec": Pedido.total.desc(),
-            "valor_dec": Pedido.total.asc()
+            "valor_desc": Pedido.total.desc(),
+            "valor_desc": Pedido.total.asc()
         }
         query = query.order_by(ordenacoes[ordenar])
         return query.paginate (

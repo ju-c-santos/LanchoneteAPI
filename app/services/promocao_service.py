@@ -196,7 +196,7 @@ class PromocaoService:
                     "issues": "Valores permitidos: " + ", ".join(ordenacoes_permitidas)
                 }]
             )
-        paginacao =(PromocaoRepository.listar_ativas(
+        paginacao =(PromocaoRepository.listar_promocao_filtrada(
             promocao_id= promocao_id,
             nome_promocao=nome_promocao,
             produto_id=produto_id,

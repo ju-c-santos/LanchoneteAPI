@@ -72,7 +72,7 @@ def alterar_preco(produto_id):
 
 
 #VISUALIZAR ALTERAÇÕES
-@produto_bp.get('/funcionarios/precos/alteracoes')####FILTROOOS
+@produto_bp.get('/funcionarios/precos/alteracoes')
 @perfil_required("COZINHEIRO", "ATENDENTE", "GERENCIA", "ADMINISTRADOR", "GESTAO")
 def listar_alteracoes_preco():
     filtros={
@@ -90,17 +90,7 @@ def listar_alteracoes_preco():
     registros = ProdutoService.listar_preco_filtrado(filtros)
     return resposta_sucesso(
         message="Alterações de preço consultadas com sucesso.",
-        data={{
-                "id": registro.id,
-                "produto_id": registro.produto_id,
-                "produtos": registro.produtos.nome,
-                "preco_anterior": float(registro.preco_anterior),
-                "preco_novo": float(registro.preco_novo),
-                "alterado_por": registro.usuario_id,
-                "data_alteracao": registro.data_alteracao.isoformat()
-            }
-            for registro in registros
-        },
+        data=registros["historico"],
         meta=registros["meta"],
         status_code=200
     )

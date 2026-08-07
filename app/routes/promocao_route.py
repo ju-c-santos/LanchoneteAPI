@@ -94,19 +94,7 @@ def listar_promocoes():
     registros = PromocaoService.listar_promocao_filtrada(filtros)
     return resposta_sucesso(
         message="A lista de promoções foi consultada com sucesso.",
-        data={{
-                "id": promocao.id,
-                "nome": promocao.nome,
-                "produto_id": promocao.produto_id,
-                "produto": promocao.produtos.nome,
-                "unidade_id": promocao.unidade_id,
-                "tipo_desconto": promocao.tipo_desconto.value,
-                "valor_desconto": float(promocao.valor_desconto),
-                "data_inicio": promocao.data_inicio.isoformat(),
-                "data_fim": promocao.data_fim.isoformat()            
-            }
-            for promocao in registros
-        },
+        data=registros["promocoes"],
         meta=registros["meta"],
         status_code=200
     )

@@ -36,7 +36,7 @@ class EstoqueRepository:
             "preco_asc": Produto.preco.asc(),
             "preco_desc": Produto.preco.desc()
         }
-        query = (Estoque.query.join(Estoque.id_produto)
+        query = (Estoque.query.join(Produto, Produto.id == Estoque.id_produto)
                  .filter(Estoque.id_unidade == unidade_id, Estoque.is_active.is_(True)))
         if nome:
             query = query.filter(Produto.nome.ilike(f"%{nome}%"))
