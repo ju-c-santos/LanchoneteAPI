@@ -27,7 +27,7 @@ def register_user():
             "email": usuario.email,
             "telefone": usuario.telefone
         },
-        status_code=200
+        status_code=201
     )
 
 @usuario_bp.patch("/usuarios/alteracao/<int:usuario_id>")
@@ -54,9 +54,9 @@ def atualizar_cadastro(usuario_id):
         ) 
     if(usuario_logado != usuario_id):
         return ApiError(
-            error="USUARIO_INVALIDO",
-            message="O usuário logafo não possui permissão para atualizar o cadastro.",
-            status_code=409,
+            error="USUARIO_NAO_PERMITIDO",
+            message="O usuário logado não possui permissão para atualizar o cadastro.",
+            status_code=403,
             details=[{
                 "field":"usuarioId",
                 "issues":f"Apenas a administração ou o usuário {usuario_id} podem realizar esta ação.",
@@ -70,7 +70,6 @@ def atualizar_cadastro(usuario_id):
             "email": usuario.email,
             "telefone": usuario.telefone,
             "cep": usuario.cep,
-            "senha_hash": usuario.senha_hash
         },
         status_code=200
     )
@@ -117,16 +116,6 @@ def desativar_cadastro(usuario_id):
 @perfil_required("CLIENTE")
 def pontos_disponiveis():
     usuario_logado = int(get_jwt_identity())
-    if usuario_logado is None:
-        raise ApiError(
-            error="UNIDADE_NAO_ENCONTRADA",
-            message="A unidade informada não foi encontrada.",
-            status_code=404,
-            details=[{
-                "field":"usuarioId",
-                "issue":f"O usuário com Id {usuario_logado} não existe."
-            }]
-        )
     registros = PontosService.consultar_saldo(usuario_logado)
     return resposta_sucesso(
         message="O saldo do usuário foi consultado com sucesso.",

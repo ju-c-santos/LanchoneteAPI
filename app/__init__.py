@@ -11,6 +11,7 @@ from app.routes.produto_route import produto_bp
 from app.routes.pedidos_route import pedido_bp
 from app.routes.pagamento_route import pagamento_bp
 from app.routes.promocao_route import promocao_bp
+from app.routes.docs_route import docs_bp
 from uuid import uuid4
 from flask import Flask, g, request
 from app.util.api_error import ApiError, resposta_erro
@@ -54,6 +55,7 @@ def create_app():
     app.register_blueprint(pedido_bp)
     app.register_blueprint(pagamento_bp)
     app.register_blueprint(promocao_bp)
+    app.register_blueprint(docs_bp)
 
     @app.before_request
     def criar_request_id():

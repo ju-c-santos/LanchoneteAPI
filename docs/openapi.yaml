@@ -1,0 +1,881 @@
+openapi: 3.1.1
+
+info:
+  title: API Lanchonete
+  version: 1.0.0
+  description: >
+    API REST para gerenciamento de pedidos,
+    produtos, estoque, usuários, pagamentos
+    e unidades da lanchonete.
+
+servers:
+  - url: http://127.0.0.1:5000
+    description: Servidor local
+
+tags:
+  - name: Autenticação
+    description: Login e autenticação dos usuários
+
+  - name: Registros #engloba todos os registros criados
+    description: Resistros de pessoas, produtos, unidades e estoques no sistema.
+
+  - name: Usuários
+    description: Gerenciamento de usuários.
+
+  - name: Pedidos #alteração de dados e consultas
+    description: Gerenciamento e consulta de pedidos.
+
+  - name: Produtos #alteração de dados e consultas
+    description: Gerenciamento dos produtos.
+
+  - name: Estoque #alteração de dados e consultas
+    description: Controle de estoque por unidade.
+
+  - name: Pagamentos
+    description: Processamento dos pagamentos.
+
+  - name: Unidades #alteração de dados e consultas
+    description: Gerenciamento das unidades.
+
+#--> aqui é onde ficam as rotas
+paths:
+  /usuario/register:
+    post:
+      tags:
+        - Registros
+      summary: Realizar cadastro
+      description: Cadastra clientes e funcionários, salvando dados pessoais para contato, e dados para login.
+      operationId: cadastrarUsuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nome
+                - email
+                - cpf
+                - telefone
+                - cep
+                - senha
+              properties:
+                nome:
+                  type: string
+                  description: Nome do cliente.
+                  example: "Laissa Eduarda"
+                email:
+                  type: string
+                  description: Email para contato e ralizar o login.
+                  example: clienteteste@email.com
+                cpf:
+                  type: string
+                  description: Cadastro de Pessoa Física do cliente 'Todos os dados são protegidos de acordo com a lei vigente da LGPD (Lei nº 13.709/2018)'.
+                  example: "12345678900"
+                telefone:
+                  type: string
+                  description: Telefone do cliente para contato.
+                  example: "(24)00000-0000"
+                cep:
+                  type: string
+                  description: Cep do endereço do cliente para entrega (não obrigatório)
+                  example: "00000-000"
+                senha:
+                  type: string
+                  description: Senha para login
+                  example: "123456"
+      responses:
+        "201":
+          description: Cadastro realizado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "Usuário cadastrado com sucesso."
+                data:
+                  id: 2
+                  nome: Laissa Eduarda
+                  email: clienteTeste@gmail.com
+                  telefone: (24)12345-6789
+        "400":
+          description: Requisição inválida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error: "JSON_INVALIDO"
+                message: "O corpo da requisção deve ser um JSON válido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/register"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "409":
+          description: Conflito interno.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "CPF_JA_CADASTRADO"
+                message: "O cpf informado já se encontra cadastrado em outra conta."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/register"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"                 
+        "422":
+          description: Dados inválidos.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "CPF_INVALIDO"
+                message: "O dado cpf deve ser uma string."
+                details: [{
+                  field: "cpf",
+                  issue: "Exemplo correto: '123456' - Exemplo incorreto: 123456."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/register"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3" 
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/register"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+  /login:
+    post:
+      tags:
+        - Autenticação
+      summary: Realizar login
+      description: Autentica um usuário por meio do email ou CPF e sua senha cadastrada.           
+      operationId: realizarLogin      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+
+              required:
+                - usuario
+                - senha
+
+              properties:
+                usuario:
+                  type: string
+                  description: Email ou CPF do usuário.
+                  example: clienteteste@email.com
+                                
+                senha:
+                  type: string
+                  format: password
+                  description: Senha do usuário.
+                  example: '123456'
+      responses:
+        "201":
+          description: Login realizado com sucesso.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+              example:
+                message: "Login realizado com sucesso."
+                data:
+                  accessToken: "eyJhbGciOiJIUzI1NiIs..."
+        "400":
+          description: Requisição inválida.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"  
+              example:
+                error: "JSON_INVALIDO"
+                message: "O corpo da requisção deve ser um JSON válido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/login"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3" 
+        "404":
+          description: Dado não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_ENCONTRADO"
+                message: "O usuário informado não foi encontrado."
+                details: [{
+                  field: "usuarioId",
+                  issue: "O usuário com Id 3 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/login"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"   
+        "422":
+          description: Dados inválidos.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "DADOS_INVALIDOS"
+                message: "Os dados informados são inválidos."
+                details: [{
+                  field: "usuario",
+                  issue: "O campo usuário é obrigatório."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/login"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3" 
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/login"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"                 
+  /usuario/alteracao/{usuarioId}:
+    patch:
+      tags:
+        - Usuários
+      summary: Atualizar informações cadastrais de um usuário.
+      description: > 
+        Permite alterar os dados: Email, Telefone, CEP e Senha
+        Perfis permitidos: Usuário do cadastro, ADMINISTRADOR e GESTÃO.
+      operationId: atualizarCadastro
+      security: 
+        - bearerAuth: []
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          description: Id do usuário que será atualizado.
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tipoDado
+                - novoValor
+              properties:
+                tipoDado:
+                  type: string
+                  description: "Dado que irá ser alterado, deve ser um dos que contém na lista = [email - telefone - cep - senha]"
+                  example: "email"
+                novoValor:
+                  type: string
+                  example: "emailAtualizado@email.com"
+      responses:
+        "200":
+          description: Cadastro alterado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "Cadastro atualizado com sucesso."
+                data:
+                  usuarioId: 2
+                  email: laissaEdu@gmail.com
+                  telefone: (24)12345-6789
+                  cep: 00000-000
+        "400":
+          description: Requisição inválida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error: "JSON_INVALIDO"
+                message: "O corpo da requisção deve ser um JSON válido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/alteracao/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/alteracao/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para alterar."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/alteracao/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"  
+        "404":
+          description: Dado não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_ENCONTRADO"
+                message: "Não foi possível encontrar este usuário."
+                details: [{
+                  field: "usuarioId",
+                  issue: "O usuário com o Id 2 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/alteracao/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"  
+        "422":
+          description: Dados inválidos.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ALTERACAO_INVALIDA"
+                message: "Não é possível alterar este campo."
+                details: [{
+                  field: "tipoDado",
+                  issue: "Apenas os campos 'EMAIL', 'TELEFONE', 'CEP, e 'SENHA', podem ser alterados."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/alteracao/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"              
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/alteracao/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+  /admin/usuarios/ativar-cadastro/{usuarioId}:
+    patch:
+      tags:
+        - Usuários
+      summary: Ativar cadastro do usuário.
+      description: Permite ativar cadastros que em dado momento foram desativados.  
+      operationId: ativarCadastro
+      security:
+        - bearerAuth: [] 
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          description: Usuário que será ativado.
+          schema:
+            type: integer
+            minium: 1  
+      requestBody:
+        required: false
+      responses:
+        "200":
+          description: Cadastro ativado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "O cadastro foi ativado com sucesso."
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/usuarios/ativar-cadastro/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para alterar."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/usuarios/ativar-cadastro/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"  
+        "404":
+          description: Dado não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_ENCONTRADO"
+                message: "Não foi possível encontrar este usuário."
+                details: [{
+                  field: "usuarioId",
+                  issue: "O usuário com o Id 2 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/usuarios/ativar-cadastro/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"              
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/usuarios/ativar-cadastro/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"               
+  /admin/usuarios/desativar-cadastro/{usuarioId}:
+    patch:
+      tags:
+        - Usuários
+      summary: Desativar cadastro do usuário.
+      description: Permite desativar cadastros que violem as regras e/ou estejam inativos por determinado tempo.  
+      operationId: desativarCadastro
+      security:
+        - bearerAuth: [] 
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          description: Usuário que será desativado.
+          schema:
+            type: integer
+            minium: 1  
+      requestBody:
+        required: false
+      responses:
+        "200":
+          description: Cadastro desativado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "O cadastro foi desativado com sucesso."
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/usuarios/desativar-cadastro/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para alterar."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/usuarios/desativar-cadastro/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"  
+        "404":
+          description: Dado não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_ENCONTRADO"
+                message: "Não foi possível encontrar este usuário."
+                details: [{
+                  field: "usuarioId",
+                  issue: "O usuário com o Id 2 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/usuarios/desativar-cadastro/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"              
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/usuarios/desativar-cadastro/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+  /usuario/consulta/saldo:
+    get:
+      tags:
+        - Usuários
+      summary: Consultar saldo na carteira de pontos.
+      description: Rota para clientes poderem consultar o saldo total de pontos.
+      operationId: consultaSaldoCliente
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+      responses:
+        "200":
+          description: Carteira de pontos consultada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "O saldo do usuário foi consultado com sucesso."
+                data:
+                  pontosDisponiveis: "30"
+                  valorDesconto: "3.00"
+                  podeUilizar: false                
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/consulta/saldo"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para acessar este conteúdo."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/consulta/saldo"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"              
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/consulta/saldo"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+  /{usuarioId}/consulta/saldo:
+    get:
+      tags:
+        - Usuários
+      summary: Consultar saldo na carteira de pontos.
+      description: Rota para Administradores poderem consultar o saldo total de pontos de determinado usuário.
+      operationId: consultaSaldoAdministracao
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          description: Usuário que terá seu saldo consultado.
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: false
+      responses:
+        "200":
+          description: Carteira de pontos consultada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "O saldo do usuário foi consultado com sucesso."
+                data:
+                  pontosDisponiveis: "30"
+                  valorDesconto: "3.00"
+                  podeUilizar: false                
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/5/consulta/saldo"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para acessar este conteúdo."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/5/consulta/saldo"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"      
+        "404":
+          description: Usuário não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_ENCONTRADO"
+                message: "O usuário informado não foi encontrado."
+                details: [{
+                  field: "usuarioId",
+                  issue: "O usuário com Id 5 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/5/consulta/saldo"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"        
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/5/consulta/saldo"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+  /usuario/<int:usuario_id>/delete:
+    delete:
+      tags:
+        - Usuários
+      sumary: Deletar usuário.
+      description: > 
+        Deletar usuário permanentemente. (Ação excluiá de forma permanente toda a atividade realizada pelo cliente).
+        Perfis permitidos: ADMINISTRACAO, GESTAO e CLIENTE (usuário da conta a deletar)
+      operationId: deleteUsuário
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          description: Usuário que será deletado.
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: false
+      responses:
+        "200":
+          description: Usuário deletado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "O usuário foi deletado com sucesso."             
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/5/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para arealizar esta ação."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/5/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"      
+        "404":
+          description: Usuário não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_ENCONTRADO"
+                message: "O usuário informado não foi encontrado."
+                details: [{
+                  field: "usuarioId",
+                  issue: "O usuário com Id 5 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/5/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"        
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/usuario/5/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    CadastroUsuarioResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Cadastro realizado com sucesso."
+        data:
+          type: object
+          properties:
+            id: 
+              type: integer
+              example: "1"
+            nome: 
+              type: string
+              example: "pessoaTeste"
+            email:
+              type: string 
+              example: "clienteteste@email.com"
+            telefone:
+              type: string
+              example: "241234567890"
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Login realizado com sucesso."
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIs..."
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "USUARIO_NAO_ENCONTRADO"
+        message:
+          type: string
+          example: "O usuário informado não foi encontrado."
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: "usuario"
+              issue:
+                type: string
+                example: "O usuário informado não existe."
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-08-07T08:30:00-03:00"
+        path:
+          type: string
+          example: "/login"
+        requestId:
+          type: string
+          format: uuid
+          example: "baaf6e1b-5217-41af-9877-2298562e65e3"
+  

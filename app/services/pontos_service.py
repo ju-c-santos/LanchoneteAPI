@@ -69,9 +69,9 @@ class PontosService:
         ).quantize(Decimal("0.01"))
 
         return {
-            "pontos_disponiveis": usuario.pontos_disponivel,
-            "valor_desconto": float(desconto),
-            "pode_utilizar": usuario.pontos_disponivel >= 50
+            "pontosDisponiveis": usuario.pontos_disponivel,
+            "valorDesconto": float(desconto),
+            "podeUtilizar": usuario.pontos_disponivel >= 50
         } 
 
 

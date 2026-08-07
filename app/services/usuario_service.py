@@ -76,7 +76,7 @@ class AuthServiceUsuario:
                     "issue":f"O usuário com Id {usuario_id} não existe."
                 }]
             )
-        tipo = dados['dado'].upper()
+        tipo = dados['dado'].upper().strip()
         novo_valor = dados['novo_valor']
         if tipo == 'EMAIL':
             valor = UsuarioRepository.update_email(usuario_id, novo_valor)
@@ -93,7 +93,7 @@ class AuthServiceUsuario:
                 status_code=409,
                 details=[{
                     "field":"tipoNovoValor",
-                    "issue":"Apenas os campos 'EMAIL', 'TELEFONE', 'CEP, e 'SENHA', podem ser alteraddos."
+                    "issue":"Apenas os campos 'EMAIL', 'TELEFONE', 'CEP, e 'SENHA', podem ser alterados."
                 }]
             )   
         return valor
