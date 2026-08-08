@@ -10,6 +10,7 @@ class RegisterServiceFuncionario:
     def fucionarioRegister(dados):
         cargo = dados['cargo'].upper()
         usuario = UsuarioRepository.chase_by_id(dados['id'])
+        funcionario = FuncionarioRepository.chase_by_usuario(dados['id'])
         if usuario is None:
             raise ApiError(
                 error="USUARIO_NAO_ENCONTRADO",
@@ -18,6 +19,16 @@ class RegisterServiceFuncionario:
                 details=[{
                     "field":"usuarioId",
                     "issue":f"O usuário com Id {dados["id"]} não existe."
+                }]
+            )
+        if funcionario is not None:
+            raise ApiError(
+                error="FUNCIONARIO_JA_CADASTRADO",
+                message="O funcionário informado já consta cadastrado.",
+                status_code= 422,
+                details=[{
+                    "field": "usuarioId",
+                    "issue": f"O usuário de Id {dados['id']} já consta cadastrado com o Id {funcionario.id}"
                 }]
             )
         if cargo in ["ADMINISTRADOR", "GERENCIA"]:
@@ -65,7 +76,7 @@ class RegisterServiceFuncionario:
                 }]
             )
         usuario = funcionario.usuario_id
-        cargo = dados['novo_cargo'].upper()
+        cargo = dados['novoCargo'].upper()
         if Perfil[cargo] not in Perfil:
             raise ApiError(
                 error="CARGO_INVALIDO",
@@ -83,7 +94,7 @@ class RegisterServiceFuncionario:
 
     @staticmethod
     def alterar_unidade(funcionario_id, dados):
-        unidade = UnidadeRepository.chase_by_id(dados['unidade_id'])
+        unidade = UnidadeRepository.chase_by_id(dados['unidadeId'])
         if unidade is None:
             raise ApiError(
                 error="UNIDADE_NAO_ENCONTRADA",
@@ -91,10 +102,10 @@ class RegisterServiceFuncionario:
                 status_code=404,
                 details=[{
                     "field":"unidadeId",
-                    "issue":f"A unidade com Id {dados['unidade_id']} não existe."
+                    "issue":f"A unidade com Id {dados['unidadeId']} não existe."
                 }]
             )
-        funcionario = FuncionarioRepository.updade_unidade(funcionario_id, dados['unidade_id'] )
+        funcionario = FuncionarioRepository.updade_unidade(funcionario_id, dados['unidadeId'] )
         return funcionario
 
     @staticmethod

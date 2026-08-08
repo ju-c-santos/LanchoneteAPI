@@ -29,7 +29,7 @@ def unidade_register():
         status_code=201
     )
 
-@unidade_bp.patch('/admin/unidade/<int:unidade_id>/atualize/is_active/True')
+@unidade_bp.patch('/admin/unidade/<int:unidade_id>/atualize/is_active/true')
 @perfil_required("GESTAO")
 def atividade_true(unidade_id):
     if unidade_id is None:
@@ -48,7 +48,7 @@ def atividade_true(unidade_id):
         status_code=200
     )
 
-@unidade_bp.patch('/admin/unidade/<int:unidade_id>/atualize/is_active/False')
+@unidade_bp.patch('/admin/unidade/<int:unidade_id>/atualize/is_active/false')
 @perfil_required("GESTAO")
 def atividade_false(unidade_id):
     if unidade_id is None:

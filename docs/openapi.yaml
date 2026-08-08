@@ -25,8 +25,14 @@ tags:
   - name: Pedidos #alteração de dados e consultas
     description: Gerenciamento e consulta de pedidos.
 
+  - name: Funcionários
+    description: Gerenciamento de funcionários.
+
   - name: Produtos #alteração de dados e consultas
     description: Gerenciamento dos produtos.
+
+  - name: Promoções
+    description: Gerenciamento de promoções.
 
   - name: Estoque #alteração de dados e consultas
     description: Controle de estoque por unidade.
@@ -43,6 +49,7 @@ paths:
     post:
       tags:
         - Registros
+        - Usuários
       summary: Realizar cadastro
       description: Cadastra clientes e funcionários, salvando dados pessoais para contato, e dados para login.
       operationId: cadastrarUsuario
@@ -157,6 +164,7 @@ paths:
     post:
       tags:
         - Autenticação
+        - Usuários
       summary: Realizar login
       description: Autentica um usuário por meio do email ou CPF e sua senha cadastrada.           
       operationId: realizarLogin      
@@ -673,7 +681,7 @@ paths:
                 path: "/5/consulta/saldo"
                 requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"      
         "404":
-          description: Usuário não encontrado.
+          description: Dado não encontrado.
           content: 
             application/json:
               schema:
@@ -701,11 +709,11 @@ paths:
                 timestamp: "2026-08-07T08:30:00-03:00"
                 path: "/5/consulta/saldo"
                 requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
-  /usuario/<int:usuario_id>/delete:
+  /usuario/{usuarioId}/delete:
     delete:
       tags:
         - Usuários
-      sumary: Deletar usuário.
+      summary: Deletar usuário.
       description: > 
         Deletar usuário permanentemente. (Ação excluiá de forma permanente toda a atividade realizada pelo cliente).
         Perfis permitidos: ADMINISTRACAO, GESTAO e CLIENTE (usuário da conta a deletar)
@@ -758,7 +766,7 @@ paths:
                 path: "/usuario/5/delete"
                 requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"      
         "404":
-          description: Usuário não encontrado.
+          description: Dado não encontrado.
           content: 
             application/json:
               schema:
@@ -786,19 +794,1628 @@ paths:
                 timestamp: "2026-08-07T08:30:00-03:00"
                 path: "/usuario/5/delete"
                 requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"        
-
-
-
-
-
-
-
-
-
-
-
-
-
+  /admin/register/unidade:
+    post:
+      tags:
+        - Registros
+        - Unidades
+      summary: Ralizar cadastro da unidade
+      description: A gestão pode registrar novas unidades da empresa.
+      operatioId: cadastrarUnidade
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - endereco
+                - bairro
+                - cep
+                - cidade
+                - estado
+              properties:
+                endereco:
+                  type: string
+                  description: Rua e número de residência da nova unidade.
+                  example: "Rua do Limoeiro, 75"
+                bairro:
+                  type: string
+                  description: Bairro dde residência da nova unidade.
+                  example: "Alvorada"
+                cep:
+                  type: string
+                  description: Cep de residência da nova unidade..
+                  example: "0000000"
+                cidade:
+                  type: string
+                  description: Cidade de residência da nova unidade.
+                  example: "Resende"
+                estado:
+                  type: string
+                  description: UF do estado de residência da nova unidade.
+      responses:
+        "201":
+          description: Unidade criada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "A unidade foi criada com sucesso."
+                data:
+                  enredeco: "Rua Mariano, 775"
+                  bairro: "piscininha"
+                  cep: "12345-678"
+                  cidade: "Resende"
+                  estado: "RJ"
+        "400":
+          description: Requisição inválida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error: "JSON_INVALIDO"
+                message: "O corpo da requisção deve ser um JSON válido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/register/unidade"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"                
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/register/unidade"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para arealizar esta ação."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/register/unidade"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"      
+        "422":
+          description: Dados inválidos.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "CAMPO_CEP_INVALIDO"
+                message: "O campo cep se encontra inválido."
+                details: [{
+                  field: "cep",
+                  issue: "Campo cep válido: '12345-678', trata-se de uma string."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/register/unidade"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"               
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/register/unidade"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e6"
+  /admin/unidade/{unidadeId}/atualize/is_active/true:
+    patch:
+      tags:
+        - Unidades
+      summary: Atualizar a atividade de operação da unidade informada.
+      description: >
+        Caso a unidade tenha ficado por um tempo fora de atividade, esta rota deve ser acionada.
+        Apenas cargos de gestão podem realizar esta função.
+      operationId: ativarUnidade
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: unidadeId
+          in: path
+          required: true
+          description: A unidade que terá seu status alterado.
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: false
+      responses:
+        "200":
+          description: Unidade ativada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "A empresa agora se encontra em atividade."
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/unidade/2/atualize/is_active/true"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para executar esta ação."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/unidade/2/atualize/is_active/true"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"  
+        "404":
+          description: Dado não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "UNIDADE_NAO_ENCONTRADA"
+                message: "Não foi possível encontrar esta unidade."
+                details: [{
+                  field: "unidadeId",
+                  issue: "A unidade com o Id 2 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/unidade/2/atualize/is_active/true"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"              
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/unidade/2/atualize/is_active/true"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"        
+  /admin/unidade/{unidadeId}/atualize/is_active/false:
+    patch:
+      tags:
+        - Unidades
+      summary: Atualizar a atividade de operação da unidade informada.
+      description: >
+        Caso a unidade precise ficar por um tempo fora de atividade, esta rota deve ser acionada.
+        Apenas cargos de gestão podem realizar esta função.
+      operationId: desativarUnidade
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: unidadeId
+          in: path
+          required: true
+          description: A unidade que terá seu status alterado.
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: false
+      responses:
+        "200":
+          description: Unidade desativada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "A empresa não se encontra mais em atividade."
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/unidade/2/atualize/is_active/false"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para executar esta ação."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/unidade/2/atualize/is_active/false"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"  
+        "404":
+          description: Dado não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "UNIDADE_NAO_ENCONTRADA"
+                message: "Não foi possível encontrar esta unidade."
+                details: [{
+                  field: "unidadeId",
+                  issue: "A unidade com o Id 2 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/unidade/2/atualize/is_active/false"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"              
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/unidade/2/atualize/is_active/false"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+  /admin/unidade/{unidadeId}/delete:
+    delete:
+      tags:
+        - Unidades
+      summary: Deletar unidade.
+      description: > 
+        Deletar unidade permanentemente. (Ação excluiá de forma permanente tudo relacionado à unidade).
+        Perfil permitido: GESTAO 
+      operationId: deleteUnidade
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: unidadeId
+          in: path
+          required: true
+          description: Unidade que será deletada.
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: false
+      responses:
+        "200":
+          description: Unidade deletada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUnidadeResponse"
+              example:
+                message: "A unidade foi deletado com sucesso."             
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/unidade/3/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para arealizar esta ação."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/unidade/3/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"      
+        "404":
+          description: Dado não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "UNIDADE_NAO_ENCONTRADA"
+                message: "A unidade informada não foi encontrado."
+                details: [{
+                  field: "unidadeId",
+                  issue: "A unidade com Id 5 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/unidade/3/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"        
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/unidade/3/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+  /admin/register/funcionarios:
+    post:
+      tags:
+        - Registros
+        - Funcionários
+      summary: Realizar cadastro dos funcionários
+      description: > 
+        Cadastra funcionários, salvando sua unidade e cargo.
+        Apenas a gestão, gerencia e a administração pode realizar esta ação.
+      operationId: cadastrarFuncionario
+      security:
+        - bearerAuth: []      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - usuarioId
+                - unidadeId
+                - cargo
+              properties:
+                usuarioId:
+                  type: integer
+                  description: Id de usuário cadastrado do funcionário.
+                  example: 2
+                unidadeId:
+                  type: integer
+                  description: Id de cadastro da unidade em que o funcionário atua.
+                  example: 3
+                cargo:
+                  type: string
+                  description: Cargo do funcionário. (podendo ser 'ATENDENTE' ou 'COZINHEIRO')
+                  example: "ATENDENTE"
+      responses:
+        "201":
+          description: Cadastro realizado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroFuncionarioResponse"
+              example:
+                message: "Funcionário cadastrado com sucesso."
+                data:
+                  usuarioId: 2
+                  unidadeId: 1
+                  cargo: ATENDENTE
+        "400":
+          description: Requisição inválida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error: "JSON_INVALIDO"
+                message: "O corpo da requisção deve ser um JSON válido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/register/funcionarios"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "409":
+          description: Conflito interno.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "FUNCIONARIO_JA_CADASTRADO"
+                message: "O cpf informado já se encontra cadastrado em outra conta."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/register/funcionarios"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"                 
+        "422":
+          description: Dados inválidos.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "CARGO_INVALIDO"
+                message: "O cargo informado é inválido."
+                details: [{
+                  field: "cargo",
+                  issue: "Cargos válidos: COZINHEIRO e ATENDENTE."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/register/funcionarios"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3" 
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/register/funcionarios"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+  /admin/funcionarios/cargo/{funcionarioId}:
+    patch:
+      tags:
+        - Funcionários
+      summary: Alterar o cargo do funcionário.
+      description: > 
+        Permite atualizar o cargo do funcionário desejado.
+        Somente a gestão pode realizar esta ação  
+      operationId: atualizarCargo
+      security:
+        - bearerAuth: [] 
+      parameters:
+        - name: funcionarioId
+          in: path
+          required: true
+          description: Funcionário que terá seu cargo mudado
+          schema:
+            type: integer
+            minium: 1  
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - novoCargo
+              properties:
+                novoCargo:
+                  type: string
+                  description: Novo cargo que o funcionário irá receber.
+                  example: "ATENDENTE"
+      responses:
+        "200":
+          description: Cargo atualizado com suceso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "O cargo do funcionário foi atualizado com sucesso."
+                data: 
+                  funcionarioId: 2
+                  novoCargo: "ATENDENTE"
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/cargo/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para realizar esta ação."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/cargo/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"  
+        "404":
+          description: Dado não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_ENCONTRADO"
+                message: "Não foi possível encontrar este usuário."
+                details: [{
+                  field: "usuarioId",
+                  issue: "O usuário com o Id 2 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/cargo/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3" 
+        "422":
+          description: Dados inválidos.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "CARGO_INVALIDO"
+                message: "O cargo inserido é inválido."
+                details: [{
+                  field: "cargo",
+                  issue: "Dados válidos: COZINHEIRO, ATENDENTE, GERENCIA, ADMINITRADOR"
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/cargo/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"                             
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/cargo/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"        
+  /admin/funcionarios/unidade/{funcionarioId}:
+    patch:
+      tags:
+        - Funcionários
+        - Unidades
+      summary: Alterar a unidade do funcionário.
+      description: > 
+        Permite atualizar a unidade do funcionário desejado.
+        Somente a gestão pode realizar esta ação  
+      operationId: atualizarUnidade
+      security:
+        - bearerAuth: [] 
+      parameters:
+        - name: funcionarioId
+          in: path
+          required: true
+          description: Funcionário que terá sua unidade mudada
+          schema:
+            type: integer
+            minium: 1  
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - unidadeId
+              properties:
+                novoCargo:
+                  type: integer
+                  description: Id da unidade que o funcionário será transferido.
+                  example: 2
+      responses:
+        "200":
+          description: Unidade atualizada com suceso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "A unidade do funcionário foi atualizada com sucesso."
+                data: 
+                  funcionarioId: 2
+                  unidadeId: 2
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/unidade/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para realizar esta ação."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/unidade/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"  
+        "404":
+          description: Dado não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_ENCONTRADO"
+                message: "Não foi possível encontrar este usuário."
+                details: [{
+                  field: "usuarioId",
+                  issue: "O usuário com o Id 2 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/unidade/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"                           
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/unidade/2"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"    
+  /admin/funcionarios/{funcionarioId}/ferias/ativar:
+    patch:
+      tags:
+        - Funcionários
+      summary: Atualizar o status de atividade do funcionário informado.
+      description: >
+        Caso o funcionário fique ausente (férias ou atestado), esta rota deve ser acionada.
+        Apenas cargos de gestão, gerência e administração podem realizar esta função.
+      operationId: statusFeriasAtivado
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: funcionarioId
+          in: path
+          required: true
+          description: O funcionário que terá seu status alterado.
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: false
+      responses:
+        "200":
+          description: O funcionário está inativo agora.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroFuncionarioResponse"
+              example:
+                message: "O funcionário saiu de férias"
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/3/ferias/ativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para executar esta ação."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/3/ferias/ativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"  
+        "404":
+          description: Dado não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "FUNCIONARIO_NAO_ENCONTRADO"
+                message: "Não foi possível encontrar este funcionário."
+                details: [{
+                  field: "funcionarioId",
+                  issue: "O funcionário com o Id 2 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/3/ferias/ativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"              
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/3/ferias/ativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+  /admin/funcionarios/{funcionarioId}/ferias/desativar:
+    patch:
+      tags:
+        - Funcionários
+      summary: Atualizar o status de atividade do funcionário informado.
+      description: >
+        Caso o funcionário retorne de sua ausêcia, esta rota deve ser acionada.
+        Apenas cargos de gestão, gerência e administração podem realizar esta função.
+      operationId: statusFeriasDesativado
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: funcionarioId
+          in: path
+          required: true
+          description: O funcionário que terá seu status alterado.
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: false
+      responses:
+        "200":
+          description: O funcionário está ativo novamente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroFuncionarioResponse"
+              example:
+                message: "O funcionário voltou de férias"
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/3/ferias/desativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para executar esta ação."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/3/ferias/desativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"  
+        "404":
+          description: Dado não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "FUNCIONARIO_NAO_ENCONTRADO"
+                message: "Não foi possível encontrar este funcionário."
+                details: [{
+                  field: "funcionarioId",
+                  issue: "O funcionário com o Id 2 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/3/ferias/desativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"              
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/3/ferias/desativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+  /admin/funcionarios/{funcionarioId}/delete:
+    delete:
+      tags:
+        - Funcionários
+      summary: Deletar funcionário.
+      description: > 
+        Deletar funcionário permanentemente. (Esta ação excluiá de forma permanente tudo relacionado ao funcionário).
+        Perfil permitido: GESTAO 
+      operationId: deleteFuncionario
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: funcionarioId
+          in: path
+          required: true
+          description: Funcionário que será deletado.
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: false
+      responses:
+        "200":
+          description: Funcionário deletado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUnidadeResponse"
+              example:
+                message: "O funcionário foi deletado com sucesso."             
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/2/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para arealizar esta ação."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/2/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"      
+        "404":
+          description: Dado não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "FUNCIONARIO_NAO_ENCONTRADO"
+                message: "O funcionario informado não foi encontrado."
+                details: [{
+                  field: "unidadeId",
+                  issue: "A unidade com Id 5 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/2/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"        
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/funcionarios/2/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+  /admin/register:
+    post:
+      tags:
+        - Registros
+        - Funcionários
+      summary: Realizar cadastro dos funcionários administrativos
+      description: > 
+        Cadastra funcionários, salvando sua unidade e cargo.
+        Apenas a gestão pode realizar esta ação.
+      operationId: cadastrarFuncionarioAdministrativo
+      security:
+        - bearerAuth: []      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - usuarioId
+                - unidadeId
+                - cargo
+              properties:
+                usuarioId:
+                  type: integer
+                  description: Id de usuário cadastrado do funcionário.
+                  example: 2
+                unidadeId:
+                  type: integer
+                  description: Id de cadastro da unidade em que o funcionário atua.
+                  example: 3
+                cargo:
+                  type: string
+                  description: Cargo do funcionário. (podendo ser 'GERENCIA' ou 'ADMINISTRADOR')
+                  example: "GERENCIA"
+      responses:
+        "201":
+          description: Cadastro realizado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroFuncionarioResponse"
+              example:
+                message: "Funcionário cadastrado com sucesso."
+                data:
+                  usuarioId: 2
+                  unidadeId: 1
+                  cargo: GERENCIA
+        "400":
+          description: Requisição inválida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error: "JSON_INVALIDO"
+                message: "O corpo da requisção deve ser um JSON válido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/register"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "409":
+          description: Conflito interno.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "FUNCIONARIO_JA_CADASTRADO"
+                message: "O cpf informado já se encontra cadastrado em outra conta."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/register"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"                 
+        "422":
+          description: Dados inválidos.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "CARGO_INVALIDO"
+                message: "O cargo informado é inválido."
+                details: [{
+                  field: "cargo",
+                  issue: "Cargos válidos: GERENCIA e ADMINISTRADOR."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/register"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3" 
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/register"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"  
+  /admin/promocoes/criar:
+    post:
+      tags:
+        - Registros
+        - Promoções
+      summary: Cadastrar novas promoções
+      description: Cadastra novas promoções e campanhas.
+      operationId: cadastrarPromocao
+      security:
+        - bearerAuth: []      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nome
+                - produtoId
+                - unidadeId
+                - tipoDesconto
+                - valorDesconto
+                - quantidadeMinima
+                - dataInicio
+                - dataFim
+              properties:
+                nome:
+                  type: string
+                  description: Nome da campanha.
+                  example: "Campanha teste"
+                produtoId:
+                  type: integer
+                  description: Id do produto em promoção.
+                  example: 2
+                unidadeId:
+                  type: integer
+                  description: Id da unidade em que está ocorrendo a campanha.
+                  example: 3
+                tipoDesconto:
+                  type: string
+                  enum:
+                    - VALOR_FIXO
+                    - PERCENTUAL
+                  description: Define o tipo de deconto que será aplicado em cima do valor informado podendo ser = percentual ou valor_fixo.
+                  example: "PERCENTUAL"
+                valorDesconto:
+                  type: number
+                  format: float
+                  description: Valor do desconto (pode ser tanto em porcentagem quanto em real).
+                  example: 5 #esse valor pode ser tanto R$5 quanto 5%, o que define é o tipoDesconto
+                dataInicio:
+                  type: string
+                  format: date
+                  description: Data de início da campanha. (modelo YYYY-MM-DD)
+                  example: "2026-08-01" 
+                dataFim:
+                  type: string
+                  format: date
+                  description: Data final da campanha. (modelo YYYY-MM-DD)
+                  example: "2026-08-30"
+      responses:
+        "201":
+          description: Promoção cadastrada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "Uma nova campanha/promoção foi cadastrada."
+                data:
+                  nome: "campanhaTeste"
+                  produtoId: 2
+                  unidadeId: 1
+                  tipoDesconto: "PERCENTUAL"
+                  valorDesconto: 20.0
+                  dataInicio: "2026-03-01"
+                  dataFim: "2026-04-01"
+        "400":
+          description: Requisição inválida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error: "JSON_INVALIDO"
+                message: "O corpo da requisção deve ser um JSON válido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes/criar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "409":
+          description: Conflito interno.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "CPF_JA_CADASTRADO"
+                message: "O cpf informado já se encontra cadastrado em outra conta."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes/criar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"                 
+        "422":
+          description: Dados inválidos.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TIPO_DESCONTO_INVALIDO"
+                message: "O tipo de desconto inserido é inválido."
+                details: [{
+                  field: "tipoDesconto",
+                  issue: "Valores válidos: PERCENTUAL, VALOR_FIXO."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes/criar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3" 
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes/criar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"  
+  /admin/promocoes/{promocaoId}/ativar:
+    patch:
+      tags:
+        - Promoções
+      summary: Ativar a promoção.
+      description: Somente a gestão tem acesso à esta função.
+      operationId: promocaoStatusAtivo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: promocaoId
+          in: path
+          required: true
+          description: A promoção que terá seu status alterado.
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: false
+      responses:
+        "200":
+          description: Promoção ativada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "O produto agora se encontra em promoção."
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes/2/ativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para executar esta ação."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes/2/ativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"  
+        "404":
+          description: Dado não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "PROMOCAO_NAO_ENCONTRADA"
+                message: "Não foi possível encontrar esta promoção."
+                details: [{
+                  field: "promocaoId",
+                  issue: "A promoção com o Id 2 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes/2/ativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"              
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes/2/ativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+  /admin/promocoes/{promocaoId}/desativar:
+    patch:
+      tags:
+        - Promoções
+      summary: Desativar a promoção.
+      description: Somente a gestão tem acesso à esta função.
+      operationId: promocaoStatusDesativada
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: promocaoId
+          in: path
+          required: true
+          description: A promoção que terá seu status alterado.
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: false
+      responses:
+        "200":
+          description: Promoção desativada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "O produto agora não se encontra mais em promoção."
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes/2/desativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para executar esta ação."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes/2/desativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"  
+        "404":
+          description: Dado não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "PROMOCAO_NAO_ENCONTRADA"
+                message: "Não foi possível encontrar esta promoção."
+                details: [{
+                  field: "promocaoId",
+                  issue: "A promoção com o Id 2 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes/2/desativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"              
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes/2/desativar"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+  /admin/promocao/{promocaoId}/delete:
+    delete:
+      tags:
+        - Promoções
+      summary: Deletar promoção.
+      description: > 
+        Deletar promoção permanentemente. (Esta ação excluiá de forma permanente tudo relacionado à promoção).
+        Perfil permitido: GESTAO 
+      operationId: deletePromocao
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: funcionarioId
+          in: path
+          required: true
+          description: Promoção que será deletado.
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: false
+      responses:
+        "200":
+          description: Promoção deletada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUnidadeResponse"
+              example:
+                message: "A promoção foi deletada com sucesso."             
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocao/1/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para arealizar esta ação."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocao/1/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"      
+        "404":
+          description: Dado não encontrado.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "PROMOCAO_NAO_ENCONTRADA"
+                message: "A promoção informada não foi encontrada."
+                details: [{
+                  field: "promocaoId",
+                  issue: "A promoção com o Id 5 não existe."
+                }]
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocao/1/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"        
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocao/1/delete"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+  /admin/promocoes:
+    get:
+      tags:
+        - Promoções
+      summary: Listar promoções
+      description: > 
+        Consulta de promoções cadastradas no sistema com possibilidade de utilizar filtros de pesquisa, escolher a ordenação e paginação.
+        Perfis permitidos: ADMINISTRADOR, GERENCIA e GESTAO.
+      operatioId: consultaPromocao
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: promocaoId
+          in: query
+          required: false
+          description: Filtra pelo Id da promoção.
+          schema:
+            type: integer
+            minimum: 1
+        - name: nomePromocao
+          in: query
+          required: false
+          description: Filtra pelo nome da promoção.
+          schema:
+            type: string
+        - name: produtoId
+          in: query
+          required: false
+          description: Filtra pelo Id do produto em promoção.
+          schema:
+            type: integer
+            minimum: 1
+        - name: tipoPromocao
+          in: query
+          required: false
+          description: Filtra pelo tipo de desconto da promoção.
+          schema:
+            type: str
+            enum:
+              - PERCENTUAL
+              - VALOR_FIXO
+        - name: dataInicio
+          in: query
+          required: false
+          description: Filtra promoções a partir da data inicial.
+          schema:
+            type: string
+            format: date
+          example: "YYYY-MM-DD"
+        - name: dataFim
+          in: query
+          required: false
+          description: Filtra promoções até a data final informada.
+          schema:
+            type: string
+            format: date
+          example: "YYYY-MM-DD"
+        - name: valorMin
+          in: query
+          required: false
+          description: Filtra promoções com o menor valor de desconto.
+          schema:
+            type: number
+            format: decimal
+            minimum: 0
+        - name: valorMax
+          in: query
+          required: false
+          description: Filtra promoções com o maior valor de desconto.
+          schema:
+            type: number
+            format: decimal
+            minimum: 0
+        - name: ativa
+          in: query
+          required: false
+          description: Filtra promoções de acordo com seus status.
+          schema:
+            type: boolean
+        - name: ordenacao
+          in: query
+          required: false
+          description: Define a ordenação dos resultados.
+          schema:
+            type: string
+            default: promocaoId_asc
+            enum:
+              - promocaoId_asc
+              - promocaoId_desc
+              - nomePromo_asc
+              - nomePromo_desc
+              - dataPromo_asc
+              - dataPromo_desc
+        - name: page
+          in: query
+          required: false
+          description: Número da página.
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          required: false
+          description: Quantidade máxima de registros por página.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      requestBody:
+        required: false
+      responses:
+        "200":
+          description: Lista de promoções consultada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CadastroUsuarioResponse"
+              example:
+                message: "Lista de promoções consultada com sucesso."
+                data:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Promocao"   
+                meta:
+                  $ref: "#/components/schemas/PaginationMeta"    
+        "401":
+          description: Token JWT ausente ou inválido.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+        "403":
+          description: Usuário sem permissão.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não tem permissão para acessar este conteúdo."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3" 
+        "422":
+          description: Um ou mais filtros informados são inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"  
+              example:
+                error: "FILTRO_INVALIDO"
+                message: "O filtro informádo é inválido."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"                                                       
+        "500":
+          description: Erro interno do servidor.
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError" 
+              example:
+                error: "ERRO_INTERNO"
+                message: "Ocorreu um erro interno no servidor."
+                details: []
+                timestamp: "2026-08-07T08:30:00-03:00"
+                path: "/admin/promocoes"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+            
+            
+                                                          
+                        
 
 
 
@@ -819,13 +2436,13 @@ components:
       properties:
         message:
           type: string
-          example: "Cadastro realizado com sucesso."
+          example: "Usuário cadastrado com sucesso."
         data:
           type: object
           properties:
             id: 
               type: integer
-              example: "1"
+              example: 1
             nome: 
               type: string
               example: "pessoaTeste"
@@ -847,6 +2464,107 @@ components:
             accessToken:
               type: string
               example: "eyJhbGciOiJIUzI1NiIs..."
+    CadastroUnidadeResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Unidade cadastrada com sucesso."
+        data:
+          type: object
+          properties:
+            endereco:
+              type: string
+              example: "Rua das melancias, 7"
+            bairro:
+              type: string
+              example: "Vegetais"
+            cep:
+              type: string
+              example: "12345-678"
+            cidade:
+              type: string
+              example: "Resende"
+            estado:
+              type: string
+              example: "RJ"
+    CadastroFuncionarioResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Unidade cadastrada com sucesso."
+        data:
+          type: object
+          properties:
+            usuarioId:
+              type: integer
+              example: 1
+            unidadeId:
+              type: string
+              example: 2
+            cargo:
+              type: string
+              example: "ATENDENTE"
+    Promocao:
+      type: object
+      properties:
+        promocaoId:
+          type: integer
+          example: 5
+        nome:
+          type: string
+          example: "Combo de verão"
+        produtoId:
+          type: integer
+          example: 3
+        unidadeId:
+          type: integer
+          example: 1
+        tipoDesconto:
+          type: string
+          enum:
+            - PERCENTUAL
+            - VALOR_FIXO
+          example: PERCENTUAL
+        valorDesconto:
+          type: string
+          example: "10.00"
+        quantidadeMinima:
+          type: integer
+          example: 2
+        ativa:
+          type: boolean
+          example: true
+        dataInicio:
+          type: string
+          format: date-time
+          example: "2026-08-01T00:00:00"
+        dataFim:
+          type: string
+          format: date-time
+          example: "2026-08-31T23:59:59"
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        totalItems:
+          type: integer
+          example: 45
+        totalPages:
+          type: integer
+          example: 3
+        hasNext:
+          type: boolean
+          example: true
+        hasPrevious:
+          type: boolean
+          example: false
     ApiError:
       type: object
       properties:

@@ -23,8 +23,8 @@ def register_funcionario():
         message="O funcionário foi cadastrado com sucesso.",
         data={
             "id": funcionario.id,
-            "usuario_id": funcionario.usuario_id,
-            "unidade_id": funcionario.unidade_id,
+            "usuarioId": funcionario.usuario_id,
+            "unidadeId": funcionario.unidade_id,
             "cargo": funcionario.cargo
         },
         status_code=200
@@ -55,7 +55,7 @@ def alterar_cargo(funcionario_id):
     return resposta_sucesso(
         message="O cargo do funcionário foi alterada com sucesso.",
         data={
-            "usuario_id": funcionario.usuario_id,
+            "funcionarioId": funcionario.id,
             "cargo": funcionario.cargo
         },
         status_code=200
@@ -86,8 +86,8 @@ def alterar_unidade(funcionario_id):
     return resposta_sucesso(
         message="A unidade do funcionário foi alterada com sucesso.",
         data={
-            "usuario_id": funcionario.usuario_id,
-            "unidade_id": funcionario.unidade_id
+            "funcionarioId": funcionario.usuario_id,
+            "unidadeId": funcionario.unidade_id
         },
         status_code=200
     )
@@ -131,7 +131,7 @@ def desativar_ferias(funcionario_id):
     )
 
 @funcionario_bp.delete('/admin/funcionarios/<int:funcionario_id>/delete')
-@perfil_required("ADMINISTRADOR", "GESTAO")
+@perfil_required("GESTAO")
 def delete_funcionario(funcionario_id):
     if funcionario_id is None:
         raise ApiError(

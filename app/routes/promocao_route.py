@@ -24,13 +24,13 @@ def criar_promocao():
         data={
             "id": promocao.id,
             "nome": promocao.nome,
-            "produto_id": promocao.produto_id,
-            "unidade_id": promocao.unidade_id,
-            "tipo_desconto": promocao.tipo_desconto.value,
-            "valor_desconto": float(promocao.valor_desconto),
-            "quantidade_minima": promocao.quantidade_minima,
-            "data_inicio": promocao.data_inicio.isoformat(),
-            "data_fim": promocao.data_fim.isoformat(),
+            "produtoId": promocao.produto_id,
+            "unidadeId": promocao.unidade_id,
+            "tipoDesconto": promocao.tipo_desconto.value,
+            "valorDesconto": float(promocao.valor_desconto),
+            "quantidadeMinima": promocao.quantidade_minima,
+            "dataInicio": promocao.data_inicio.isoformat(),
+            "dataFim": promocao.data_fim.isoformat(),
             "ativa": promocao.ativa            
         },
         status_code=201
