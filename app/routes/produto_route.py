@@ -63,10 +63,10 @@ def alterar_preco(produto_id):
         status_code=200,
         data={
             "mensagem": "Preço atualizado em todas as unidades",
-            "produto_id": item.id,
+            "produtoId": item.id,
             "produto": item.nome,
-            "novo_valor": float(item.preco),
-            "estoques_atualizados": produto["estoques_atualizados"]            
+            "novoValor": float(item.preco),
+            "estoquesAtualizados": produto["estoquesAtualizados"]            
         }
     )
 

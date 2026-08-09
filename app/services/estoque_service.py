@@ -37,11 +37,11 @@ class EstoqueService:
                     "issue":f"A unidade {dados['id_unidade']} não foi encontrada."
                 }]
             )
-        categoria = ProdutoRepository.get_from(dados['id_produto'], Produto.categoria)
-        preco = ProdutoRepository.get_from(dados['id_produto'], Produto.preco)
+        categoria = ProdutoRepository.get_from(dados['produtoId'], Produto.categoria)
+        preco = ProdutoRepository.get_from(dados['produtoId'], Produto.preco)
         estoque = Estoque(
-            id_produto = dados['id_produto'],
-            id_unidade = dados['id_unidade'],
+            id_produto = dados['produtoId'],
+            id_unidade = dados['unidadeId'],
             quantidade = dados['quantidade'],
             categoria = categoria,
             preco = preco

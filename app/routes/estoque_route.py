@@ -24,8 +24,8 @@ def add_to_estoque():
         message="Item adicionado ao estoque com sucesso!",
         status_code=201,
         data={
-            "id_produto": estoque.id_produto,
-            "id_unidade": estoque.id_unidade,
+            "produtoId": estoque.id_produto,
+            "unidadeId": estoque.id_unidade,
             "quantidade": estoque.quantidade,
             "preco": estoque.preco,
             "categoria": estoque.categoria
@@ -51,8 +51,8 @@ def atualizar_disponibilidade_true(estoque_id):
         message="O item está disponível.",
         status_code=200,
         data={
-            "id_produto": produto.id_produto,
-            "is_active": produto.is_active
+            "idProduto": produto.id_produto,
+            "isActive": produto.is_active
         }
     )
 
@@ -106,12 +106,11 @@ def atualizar_quantidade_estoque(estoque_id):
         message="Quantidade em estoque atualizada com sucesso.",
         status_code=200,
         data={
-            "mensagem": "Quantidade atualizada com sucesso",
-            "estoque_id": estoque.id,
-            "produto_id": estoque.id_produto,
-            "unidade_id": estoque.id_unidade,
+            "estoqueId": estoque.id,
+            "produtoId": estoque.id_produto,
+            "unidadeId": estoque.id_unidade,
             "quantidade": estoque.quantidade,
-            "is_active": estoque.is_active
+            "isActive": estoque.is_active
         }
     )
 

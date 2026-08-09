@@ -128,7 +128,7 @@ def finalizar(id):
     )
 
 @pedido_bp.patch("/<int:id>/status/cancelar")
-@perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR", "GESTAO")
+@perfil_required("ATENDENTE", "GERENCIA", "ADMINISTRADOR", "GESTAO", "CLIENTE")
 def cancelar(id):
     pedido = PedidoService.cancelar(id)
     return resposta_sucesso(
@@ -161,16 +161,16 @@ def alterar_item_pedido(pedido_id, itempedido_id):
 @perfil_required('CLIENTE')
 def historico_cliente():
     filtros = {
-        "data_inicio": request.args.get("dataInicio"),#DATATIME
-        "data_fim": request.args.get("dataFim"),#DATATIME
+        "data_inicio": request.args.get("dataInicio"),
+        "data_fim": request.args.get("dataFim"),
         "unidade_id": request.args.get("unidadeId"),
-        "status": request.args.get("status"),#ENUM
+        "status": request.args.get("status"),
         "pedido_id": request.args.get("pedidoId"),
-        "canal_pedido": request.args.get("canalPedido"),#ENUM
-        "entrega": request.args.get("entrega"),#BOOL
-        "valor_min": request.args.get("valorMin"), #DECIMAL
-        "valor_max": request.args.get("valorMax"), #DECIMAL
-        "ordenar": request.args.get("ordenar", default="pedidoId_desc"),####
+        "canal_pedido": request.args.get("canalPedido"),
+        "entrega": request.args.get("entrega"),
+        "valor_min": request.args.get("valorMin"), 
+        "valor_max": request.args.get("valorMax"), 
+        "ordenar": request.args.get("ordenar", default="pedidoId_desc"),
         "page": request.args.get("page", default=1, type=int),
         "limit": request.args.get("limit", default=20, type=int)
     }

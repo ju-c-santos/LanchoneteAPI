@@ -46,7 +46,7 @@ class ProdutoService:
                     "issue":f"O produto {produto_id} não existe."
                 }]
             )
-        novo_valor = Decimal(str(dados['novo_valor'])).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        novo_valor = Decimal(str(dados['novoValor'])).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
         if novo_valor <= Decimal("0.00"):
             raise ApiError(
                 error="VALOR_INVALIDO",
@@ -70,7 +70,7 @@ class ProdutoService:
         db.session.commit()
         return {
             "produto": preco_atualizado,
-            "estoques_atualizados":estoque_atualizado
+            "estoquesAtualizados":estoque_atualizado
         }
 
     @staticmethod

@@ -26,7 +26,7 @@ def pagamento(id_pedido):
         ) 
     pagamento = PagamentoService.mock_pagamento(id_pedido, id_usuario, dados)
     return resposta_sucesso(
-        message="Item do pedido foi alterado com sucesso!",
+        message="Pagamento realizado com sucesso!",
         status_code=201,
         data={
             "usuarioId": id_usuario,
