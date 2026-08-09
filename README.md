@@ -1,58 +1,316 @@
-# LanchoneteAPI
+# 🍔 LanchoneteAPI
 
-API REST desenvolvida em **Python com Flask** para gerenciamento de uma rede de lanchonetes com múltiplas unidades.
+API REST desenvolvida em **Python + Flask** para gerenciamento interno de uma rede de lanchonetes.
 
-O sistema centraliza usuários, funcionários, cardápios, estoques, pedidos, pagamentos, promoções, programa de pontos e relatórios. Cada unidade possui seu próprio estoque, enquanto a administração global pode consultar e alterar dados de todas as unidades.
+O projeto utiliza arquitetura em camadas, autenticação com JWT, controle de acesso por perfil, PostgreSQL, gerenciamento de estoque por unidade, pedidos multicanal, promoções, programas de pontos e integração de pagamento mock.
 
 ---
 
-## Funcionalidades
+## 📚 Documentação Swagger / OpenAPI
 
-### Autenticação e autorização
+A documentação pública da API está disponível pelo GitHub Pages:
 
-- Cadastro e login de usuários.
-- Autenticação com JWT.
-- Controle de acesso por perfil.
-- Proteção de rotas por meio do decorator `perfil_required`.
-- Alteração de dados cadastrais pelo próprio usuário.
-- Ativação e desativação lógica de cadastros.
+### 🔗 [Acessar documentação Swagger](https://ju-c-santos.github.io/LanchoneteAPI/#/Autenticação/realizarLogin)
 
-### Perfis de acesso
+A documentação permite consultar:
 
-| Perfil | Permissões principais |
-|---|---|
-| `CLIENTE` | Consultar cardápio, criar pedido, editar pedido antes do pagamento, pagar, consultar histórico e pontos |
-| `ATENDENTE` | Consultar e atualizar pedidos da própria unidade |
-| `COZINHEIRO` | Visualizar pedidos ativos e alterar etapas de preparo |
-| `GERENCIA` | Gerenciar estoque, funcionários, promoções e relatórios da própria unidade |
-| `ADMINISTRADOR` | Acesso global a usuários, unidades, produtos, estoques, promoções e relatórios |
+- endpoints disponíveis;
+- métodos HTTP;
+- parâmetros de rota e filtros;
+- corpos das requisições;
+- códigos de resposta;
+- exemplos de sucesso e erro;
+- autenticação JWT;
+- schemas utilizados pela API.
 
-### Unidades e estoque
+> Para executar endpoints protegidos pelo Swagger, realize o login, copie o token JWT e utilize o botão **Authorize**.
 
-- Cadastro de unidades.
-- Associação de funcionários a uma unidade.
-- Estoque independente por unidade.
-- Mesmo produto disponível em várias unidades.
-- Controle de quantidade e disponibilidade.
-- Atualização de preço em todos os estoques relacionados ao mesmo produto.
-- Devolução de itens ao estoque em cancelamentos.
-- Cardápio filtrado por unidade.
+---
 
-### Pedidos
+## 🎯 Objetivo do projeto
 
-- Criação de pedidos com múltiplos itens.
-- Cálculo de subtotal e total com `Decimal`.
-- Aplicação de promoções.
-- Aplicação de desconto com pontos.
-- Atualização de quantidade antes do pagamento.
-- Remoção de item antes do pagamento.
-- Histórico de pedidos do cliente.
-- Listagem de pedidos por unidade e por data.
-- Preservação dos dados do item comprado no histórico.
+A LanchoneteAPI foi criada para representar o back-end de uma rede de lanchonetes, centralizando regras de negócio relacionadas a:
 
-### Fluxo de status
+- usuários e autenticação;
+- funcionários e perfis de acesso;
+- unidades;
+- produtos;
+- estoque por unidade;
+- cardápio;
+- pedidos;
+- pagamentos;
+- promoções;
+- fidelização por pontos;
+- consultas gerenciais.
 
-O pedido percorre etapas controladas:
+A aplicação foi organizada seguindo a separação:
+
+```text
+Route
+  ↓
+Service
+  ↓
+Repository
+  ↓
+Model
+  ↓
+PostgreSQL
+```
+
+---
+
+## 🧱 Arquitetura
+
+O projeto segue uma arquitetura em camadas.
+
+### Routes
+
+Responsáveis por:
+
+- receber requisições HTTP;
+- recuperar parâmetros, query params e JSON;
+- identificar o usuário autenticado;
+- chamar os Services;
+- retornar a resposta HTTP.
+
+### Services
+
+Responsáveis por:
+
+- regras de negócio;
+- validações;
+- permissões;
+- conversão de dados;
+- orquestração das operações.
+
+### Repositories
+
+Responsáveis por:
+
+- consultas ao banco;
+- filtros;
+- paginação;
+- persistência;
+- atualização e remoção de registros.
+
+### Models
+
+Responsáveis pela representação das entidades do banco utilizando SQLAlchemy.
+
+---
+
+## 🛠️ Tecnologias utilizadas
+
+- Python 3.12
+- Flask
+- Flask-SQLAlchemy
+- SQLAlchemy
+- Flask-Migrate
+- Alembic
+- Flask-JWT-Extended
+- PostgreSQL
+- Psycopg2
+- Supabase
+- Python Dotenv
+- Swagger UI
+- OpenAPI 3.1
+- Postman
+- Git / GitHub
+- GitHub Pages
+
+---
+
+# 🔐 Autenticação e autorização
+
+A API utiliza **JWT (JSON Web Token)**.
+
+Após o login, o token deve ser enviado nas rotas protegidas:
+
+```http
+Authorization: Bearer SEU_TOKEN_JWT
+```
+
+Exemplo de login:
+
+```http
+POST /login
+```
+
+```json
+{
+  "usuario": "cliente@email.com",
+  "senha": "123456"
+}
+```
+
+Os endpoints protegidos também utilizam controle de acesso por perfil.
+
+Perfis utilizados pelo sistema:
+
+```text
+CLIENTE
+ATENDENTE
+COZINHEIRO
+GERENCIA
+ADMINISTRADOR
+GESTAO
+```
+
+Exemplo no Flask:
+
+```python
+@perfil_required("ADMINISTRADOR", "GERENCIA", "GESTAO")
+```
+
+---
+
+# 👤 Usuários
+
+O sistema possui funcionalidades para:
+
+- cadastro;
+- login por e-mail ou CPF;
+- atualização cadastral;
+- ativação e desativação de cadastro;
+- consulta de saldo de pontos;
+- exclusão de usuário;
+- controle de acesso por perfil.
+
+Exemplos:
+
+```http
+POST /usuario/register
+POST /login
+PATCH /usuario/alteracao/{usuarioId}
+GET /usuario/consulta/saldo
+DELETE /usuario/{usuarioId}/delete
+```
+
+---
+
+# 👨‍🍳 Funcionários
+
+Funcionários são associados a uma unidade da rede e possuem permissões conforme o cargo/perfil.
+
+Entre as operações disponíveis estão:
+
+- cadastro de funcionário;
+- alteração de cargo;
+- alteração de unidade;
+- ativação e desativação de férias;
+- consulta de funcionários;
+- remoção.
+
+---
+
+# 🏪 Unidades
+
+Cada unidade possui seus próprios registros operacionais e seu próprio estoque.
+
+Entre as operações disponíveis estão:
+
+- cadastro;
+- consulta;
+- atualização;
+- ativação/desativação;
+- associação de funcionários;
+- estoque independente.
+
+Exemplo:
+
+```http
+POST /admin/register/unidade
+```
+
+---
+
+# 📦 Produtos e estoque
+
+Um mesmo produto pode existir em estoques de diferentes unidades.
+
+Exemplo conceitual:
+
+```text
+Produto: X-Burger
+
+Unidade 1
+Quantidade: 30
+Preço: R$ 20,00
+
+Unidade 2
+Quantidade: 12
+Preço: R$ 22,00
+```
+
+Assim, a disponibilidade e quantidade pertencem ao estoque da respectiva unidade.
+
+O sistema permite:
+
+- cadastro de produtos;
+- associação de produtos ao estoque;
+- entrada e saída de quantidade;
+- alteração de preço;
+- consulta de estoque;
+- consulta de cardápio por unidade;
+- filtragem e paginação.
+
+---
+
+# 🍽️ Cardápio por unidade
+
+O cardápio é consultado a partir do estoque da unidade.
+
+Exemplo:
+
+```http
+GET /unidade/{unidadeId}/menu
+```
+
+A consulta pode utilizar filtros como nome, categoria, disponibilidade, preço e ordenação.
+
+---
+
+# 🛒 Pedidos
+
+O pedido contém informações como:
+
+- cliente;
+- unidade;
+- itens;
+- quantidades;
+- preço unitário;
+- subtotal;
+- total;
+- status;
+- entrega;
+- pontos;
+- canal de origem.
+
+## Canais de pedido
+
+Os pedidos podem ser originados por:
+
+```text
+APP
+TOTEM
+BALCAO
+PICKUP
+WEB
+```
+
+O canal é armazenado no domínio do pedido e pode ser utilizado em filtros de consulta.
+
+Exemplo:
+
+```http
+?canalPedido=TOTEM
+```
+
+---
+
+## 🔄 Fluxo de status do pedido
+
+Fluxo principal:
 
 ```text
 AGUARDANDO_PAGAMENTO
@@ -68,154 +326,195 @@ AGUARDANDO_ENTREGADOR
 FINALIZADO
 ```
 
-Também podem existir os status:
+Também existem os estados:
 
 ```text
 PAGAMENTO_RECUSADO
 CANCELADO
 ```
 
-### Pagamentos
+---
 
-- Mock de pagamento.
-- Suporte a diferentes métodos.
-- Aprovação automática ou simulada.
-- Código único da transação.
-- Atualização do status do pedido.
-- Bloqueio de pagamento por usuário diferente do dono do pedido.
+# 💳 Pagamentos
 
-### Promoções
+O projeto utiliza um serviço de pagamento **mock**, sem integração com pagamento financeiro real.
 
-- Promoção por produto.
-- Promoção por unidade ou global.
-- Desconto percentual.
-- Desconto por valor fixo.
-- Quantidade mínima.
-- Período de validade.
-- Ativação e desativação.
-- Aplicação automática no cálculo do pedido.
-
-### Programa de pontos
-
-- Acúmulo de pontos em pedidos finalizados.
-- Registro de pontos ganhos e utilizados.
-- Saldo disponível no usuário.
-- Conversão de pontos em desconto.
-- Regra atual:
+O fluxo representa:
 
 ```text
-5 pontos = R$ 0,50
-1 ponto  = R$ 0,10
+Pedido
+  ↓
+Solicitação de pagamento
+  ↓
+Pagamento mock
+  ↓
+Resultado
+  ↓
+Atualização do pedido
 ```
 
-O resgate é permitido somente quando o cliente possui mais de **R$ 5,00** em desconto acumulado.
+Métodos representados no domínio incluem:
 
-### Relatórios
-
-- Total vendido por unidade.
-- Total vendido no dia.
-- Quantidade de pedidos.
-- Ticket médio.
-- Produto mais vendido por unidade.
-- Produto mais vendido globalmente.
-- Histórico de alterações de preço.
+```text
+DINHEIRO
+DEBITO
+CREDITO
+PIX
+VALE
+```
 
 ---
 
-## Tecnologias
+# 🎁 Promoções
 
-- Python 3.12
-- Flask
-- Flask-SQLAlchemy
-- SQLAlchemy
-- Flask-Migrate
-- Alembic
-- Flask-JWT-Extended
-- PostgreSQL
-- Psycopg2
-- Supabase
-- Python Dotenv
+A API possui suporte a promoções e campanhas.
+
+Tipos de desconto:
+
+```text
+PERCENTUAL
+VALOR_FIXO
+```
+
+As consultas de promoções permitem filtros como:
+
+```text
+promocaoId
+nomePromocao
+produtoId
+tipoPromocao
+dataInicio
+dataFim
+valorMin
+valorMax
+ativa
+ordenacao
+page
+limit
+```
 
 ---
 
-## Arquitetura
+# ⭐ Programa de fidelidade
 
-O projeto segue uma organização em camadas:
+Clientes podem acumular e utilizar pontos conforme as regras definidas no sistema.
 
-```text
-LanchoneteAPI/
-│
-├── app/
-│   ├── models/
-│   ├── repositories/
-│   ├── services/
-│   ├── routes/
-│   ├── util/
-│   ├── database.py
-│   └── __init__.py
-│
-├── migrations/
-├── .env
-├── .env.example
-├── .gitignore
-├── config.py
-├── requirements.txt
-├── run.py
-└── README.md
+Exemplo de consulta:
+
+```http
+GET /usuario/consulta/saldo
 ```
 
-### Responsabilidade das camadas
+A resposta pode apresentar informações como:
 
-| Camada | Responsabilidade |
+```json
+{
+  "pontosDisponiveis": 30,
+  "valorDesconto": "3.00",
+  "podeUtilizar": false
+}
+```
+
+---
+
+# 📊 Consultas e relatórios
+
+A API possui consultas voltadas à operação e gestão, incluindo:
+
+- histórico de pedidos;
+- pedidos do dia;
+- pedidos em aberto;
+- faturamento;
+- total vendido;
+- produtos vendidos;
+- produto mais vendido;
+- histórico de alteração de preços;
+- filtros por unidade, usuário, status, canal, período e valor.
+
+As consultas utilizam paginação quando necessário.
+
+---
+
+# ⚠️ Padrão de erros
+
+A API utiliza um formato padronizado para erros.
+
+Exemplo:
+
+```json
+{
+  "error": "PEDIDO_NAO_ENCONTRADO",
+  "message": "O pedido informado não foi encontrado.",
+  "details": [
+    {
+      "field": "pedidoId",
+      "issue": "Não existe pedido com o ID informado."
+    }
+  ],
+  "timestamp": "2026-08-09T18:00:00-03:00",
+  "path": "/pedidos/10",
+  "requestId": "uuid-da-requisicao"
+}
+```
+
+Principais códigos HTTP utilizados:
+
+| Código | Significado |
 |---|---|
-| `models` | Mapeamento das tabelas e relacionamentos |
-| `repositories` | Consultas e operações com o banco |
-| `services` | Regras de negócio e validações |
-| `routes` | Endpoints HTTP e respostas JSON |
-| `util` | Decorators e funções auxiliares |
+| `200` | Requisição realizada com sucesso |
+| `201` | Recurso criado com sucesso |
+| `400` | Requisição malformada |
+| `401` | Token ausente, inválido ou expirado |
+| `403` | Usuário autenticado sem permissão |
+| `404` | Recurso não encontrado |
+| `409` | Conflito com o estado atual ou regra de negócio |
+| `422` | Dados ou parâmetros inválidos |
+| `500` | Erro interno do servidor |
 
 ---
 
-## Requisitos
+# 🚀 Como executar o projeto
 
-Antes de executar o projeto, instale:
+## 1. Pré-requisitos
 
-- Python 3.12 ou superior
-- PostgreSQL local ou projeto no Supabase
-- Git
+É necessário ter instalado:
+
+- Python 3.12 ou superior;
+- Git;
+- PostgreSQL ou acesso a um banco PostgreSQL/Supabase.
 
 ---
 
-## Instalação
-
-### 1. Clone o repositório
+## 2. Clone o repositório
 
 ```bash
-git clone https://github.com/ju-c-santos/LanchoneteAPI.git 
+git clone https://github.com/ju-c-santos/LanchoneteAPI.git
 cd LanchoneteAPI
 ```
 
-### 2. Crie o ambiente virtual
+---
+
+## 3. Crie o ambiente virtual
 
 ```bash
 python -m venv .venv
 ```
 
-### 3. Ative o ambiente virtual
-
 No PowerShell:
 
 ```powershell
-.venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 ```
 
-No Prompt de Comando:
+No CMD:
 
 ```cmd
 .venv\Scripts\activate
 ```
 
-### 4. Instale as dependências
+---
+
+## 4. Instale as dependências
 
 ```bash
 pip install -r requirements.txt
@@ -223,86 +522,47 @@ pip install -r requirements.txt
 
 ---
 
-## Variáveis de ambiente
+## 5. Configure as variáveis de ambiente
 
-Crie o arquivo `.env` com base no `.env.example`.
+Crie um arquivo `.env` baseado no `.env.example`.
 
-```env
-DATABASE_URL=
-SECRET_KEY=
-JWT_SECRET_KEY=
-```
-
-Exemplo de conexão local:
+Exemplo:
 
 ```env
-DATABASE_URL=postgresql://postgres:SENHA@localhost:5432/lanchonete
+DATABASE_URL=postgresql://usuario:senha@host:porta/banco
+SECRET_KEY=sua_chave_secreta
+JWT_SECRET_KEY=sua_chave_jwt_segura
 ```
 
-Exemplo de conexão com Supabase:
-
-```env
-DATABASE_URL=postgresql://USUARIO:SENHA@HOST:5432/postgres
-```
-
-> Nunca envie o arquivo `.env` para o GitHub.
-
-O `.gitignore` deve conter:
-
-```gitignore
-.env
-.venv/
-__pycache__/
-*.py[cod]
-```
+> Não envie o arquivo `.env` para o GitHub e não exponha senhas ou chaves reais.
 
 ---
 
-## Banco de dados
-
-### Aplicar migrations existentes
+## 6. Atualize o banco
 
 ```bash
 flask db upgrade
 ```
 
-### Criar uma nova migration
-
-```bash
-flask db migrate -m "descricao da alteracao"
-```
-
-### Verificar a revisão atual
+Comandos úteis:
 
 ```bash
 flask db current
-```
-
-### Ver o histórico
-
-```bash
 flask db history
-```
-
-### Voltar uma migration
-
-```bash
+flask db migrate -m "descricao da migration"
+flask db upgrade
 flask db downgrade -1
 ```
 
-> Alterações em ENUMs do PostgreSQL podem exigir edição manual da migration.
-
 ---
 
-## Executando a aplicação
-
-Com o ambiente virtual ativado:
+## 7. Execute a aplicação
 
 ```bash
 python run.py
 ```
 
-A API ficará disponível em:
+A API local ficará disponível em:
 
 ```text
 http://127.0.0.1:5000
@@ -310,154 +570,152 @@ http://127.0.0.1:5000
 
 ---
 
-## Autenticação
+# 📖 Swagger local
 
-Após o login, envie o token no cabeçalho:
+Com a aplicação Flask em execução:
 
-```http
-Authorization: Bearer SEU_ACCESS_TOKEN
+```text
+http://127.0.0.1:5000/docs/
 ```
 
-O token armazena o ID do usuário e o perfil utilizado pelo controle de acesso.
+## Swagger público
+
+A documentação também está publicada no GitHub Pages:
+
+### 🔗 https://ju-c-santos.github.io/LanchoneteAPI/#/Autenticação/realizarLogin
 
 ---
 
-## Exemplos de endpoints
+# 🧪 Testes com Postman
 
-Os caminhos abaixo representam os principais recursos da API. Ajuste-os conforme as rotas atualmente registradas no projeto.
+O projeto possui coleção e ambiente do Postman para reprodução dos testes.
 
-### Usuários
+Arquivos:
 
-```http
-POST   /register
-POST   /login
-PATCH  /usuarios/alteracao/{usuario_id}
+```text
+LanchoneteAPI_Postman_Collection.json
+LanchoneteAPI_Postman_Environment.json
 ```
 
-### Funcionários
+No Postman:
 
-```http
-POST   /admin/register/funcionarios
-PATCH  /admin/funcionarios/cargo/{funcionario_id}
-PATCH  /admin/funcionarios/unidade/{funcionario_id}
+1. importe a coleção;
+2. importe o ambiente;
+3. selecione o ambiente `LanchoneteAPI - Local`;
+4. configure as credenciais dos perfis utilizados;
+5. execute os logins para gerar os tokens;
+6. execute os cenários de teste.
+
+Variáveis utilizadas incluem:
+
+```text
+{{baseUrl}}
+
+{{clienteToken}}
+{{adminToken}}
+{{funcionarioToken}}
+
+{{usuarioId}}
+{{unidadeId}}
+{{funcionarioId}}
+{{produtoId}}
+{{estoqueId}}
+{{promocaoId}}
+{{pedidoId}}
+{{itemPedidoId}}
 ```
 
-### Estoque e cardápio
+A coleção possui cenários positivos e negativos para validar os principais fluxos da aplicação.
 
-```http
-GET    /unidades/{unidade_id}/menu
-PATCH  /admin/estoques/{estoque_id}/quantidade
-```
-
-### Pedidos
-
-```http
-POST   /pedidos
-GET    /pedidos/historico
-GET    /admin/pedidos
-PATCH  /pedidos/{pedido_id}/itens/{item_id}
-DELETE /pedidos/{pedido_id}/itens/{item_id}
-```
-
-### Pagamento
-
-```http
-POST   /pedidos/{pedido_id}/pagamento
-```
-
-### Promoções
-
-```http
-POST   /admin/promocoes
-GET    /admin/promocoes
-GET    /promocoes
-PATCH  /admin/promocoes/{promocao_id}
-```
+> Atenção ao executar a coleção completa: existem endpoints que podem alterar ou excluir registros.
 
 ---
 
-## Exemplo de criação de pedido
+# 🧪 Exemplos de testes
 
-```json
-{
-  "unidade_id": 1,
-  "observacao": "Sem cebola",
-  "entrega": false,
-  "local_pedido": "WEBSITE",
-  "usar_pontos": false,
-  "itempedido": [
-    {
-      "produto_id": 3,
-      "quantidade": 2
-    },
-    {
-      "produto_id": 7,
-      "quantidade": 1
-    }
-  ]
-}
-```
-
----
-
-## Regras importantes
-
-- O cliente só pode alterar pedidos em `AGUARDANDO_PAGAMENTO`.
-- O cliente só pode pagar um pedido que pertence à própria conta.
-- O funcionário acessa apenas os dados da própria unidade.
-- O administrador possui acesso global.
-- Produtos e estoques utilizados em pedidos não devem ser apagados fisicamente.
-- Exclusão lógica deve ser priorizada com campos como `is_active`, `ativa` ou `cadastro_ativo`.
-- Operações relacionadas devem utilizar uma única transação com `commit()` no final e `rollback()` em caso de erro.
-- Valores monetários devem utilizar `Decimal` ou `Numeric`, evitando `float` para cálculos financeiros.
-
----
-
-## Segurança
-
-- Senhas devem ser armazenadas somente como hash.
-- Credenciais devem permanecer no `.env`.
-- Tokens JWT devem possuir tempo de expiração.
-- Rotas administrativas devem validar o perfil.
-- O ID do usuário deve ser obtido pelo JWT sempre que possível.
-- O backend deve validar unidade, quantidade, status e propriedade do pedido.
-
----
-
-## Testes
-
-As rotas podem ser testadas com:
-
-- Postman
-- Insomnia
-- Thunder Client
-
-Cabeçalhos comuns:
+### Login
 
 ```http
-Content-Type: application/json
-Authorization: Bearer SEU_ACCESS_TOKEN
+POST /login
+```
+
+### Consultar menu
+
+```http
+GET /unidade/{unidadeId}/menu
+```
+
+### Consultar promoções
+
+```http
+GET /admin/promocoes?page=1&limit=20
+```
+
+### Consultar pedidos em aberto
+
+```http
+GET /funcionarios/pedidos/em_aberto?page=1&limit=20
+```
+
+### Consultar saldo
+
+```http
+GET /usuario/consulta/saldo
 ```
 
 ---
 
-## Melhorias futuras
+# 🔒 Segurança
 
-- Testes automatizados com Pytest.
-- Documentação com Swagger ou OpenAPI.
-- Integração com gateway de pagamento real.
-- Notificações em tempo real.
-- Dashboard web para gestão.
-- Controle de movimentação de estoque.
-- Cupons de desconto.
-- Upload de imagens dos produtos.
-- Logs e auditoria administrativa.
-- Deploy automatizado.
+O projeto utiliza:
+
+- hash de senha;
+- JWT;
+- autorização por perfil;
+- variáveis de ambiente;
+- respostas de erro padronizadas;
+- controle de acesso às rotas administrativas;
+- identificação de requisições por `requestId`.
+
+Segredos e credenciais não devem ser versionados no Git.
 
 ---
 
-## Autora
+# 🗄️ Banco de dados
 
-Desenvolvido por **Juliana Conceição**.
+Banco utilizado:
 
-Projeto criado para estudo e desenvolvimento de uma API REST multicamadas com Flask, PostgreSQL e Supabase.
+```text
+PostgreSQL
+```
+
+O projeto utiliza SQLAlchemy para ORM e Alembic/Flask-Migrate para controle de migrations.
+
+O banco pode ser hospedado no Supabase.
+
+---
+
+# 🌐 Documentação e acesso
+
+| Recurso | Acesso |
+|---|---|
+| API local | `http://127.0.0.1:5000` |
+| Swagger local | `http://127.0.0.1:5000/docs` |
+| Swagger público | [GitHub Pages](https://ju-c-santos.github.io/LanchoneteAPI/#/Autenticação/realizarLogin) |
+| Especificação | `docs/openapi.yaml` |
+| Coleção Postman | `LanchoneteAPI_Postman_Collection.json` |
+| Ambiente Postman | `LanchoneteAPI_Postman_Environment.json` |
+
+---
+
+# 📌 Observação
+
+O Swagger publicado no GitHub Pages disponibiliza a documentação da API de forma pública.
+
+A execução pelo botão **Try it out** depende de o servidor Flask configurado em `servers` no OpenAPI estar acessível.
+
+---
+
+_Juliana Conceição_
+
+Projeto desenvolvido para estudo e aplicação prática de desenvolvimento back-end com Flask, APIs REST, banco de dados relacional, autenticação, documentação OpenAPI e testes de API.
