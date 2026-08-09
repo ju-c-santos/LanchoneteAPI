@@ -9,9 +9,6 @@ info:
     e unidades da lanchonete.
 
 servers:
-  - url: https://lanchonete-api.onrender.com
-    description: Servidor de produção
-
   - url: http://127.0.0.1:5000
     description: Servidor local
 
