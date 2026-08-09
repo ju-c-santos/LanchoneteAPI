@@ -9,8 +9,8 @@ info:
     e unidades da lanchonete.
 
 servers:
-  - url: http://127.0.0.1:5000
-    description: Servidor local
+  - url: https://minha-api.onrender.com
+    description: Servidor de produção
 
 tags:
   - name: Autenticação
