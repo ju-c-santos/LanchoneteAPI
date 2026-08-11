@@ -96,6 +96,14 @@ def create_app():
             message = "O método HTTP não é permitido para esta rota.",
             status_code = 405
         )
+    
+    @app.errorhandler(401)
+    def token_ausente(_erro):
+        return resposta_erro(
+            error = "TOEKN_AUSENTE",
+            message = "Token de acesso não informado.",
+            status_code = 401
+        )
 
     @app.errorhandler(Exception)
     def erro_interno(erro):

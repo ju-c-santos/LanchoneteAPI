@@ -248,6 +248,7 @@ def pedidos_hoje():
 @pedido_bp.get('/funcionarios/pedidos/em_aberto')
 @perfil_required('ADMINISTRADOR', 'GERENCIA', 'ATENDENTE', 'COZINHEIRO')
 def pedidos_abertos():
+    
     filtros={
         "unidade_id": request.args.get("unidadeId"),
         "usuario_id": request.args.get("usuarioId"),

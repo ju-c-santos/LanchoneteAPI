@@ -1,0 +1,1084 @@
+{
+  "info": {
+    "_postman_id": "dc9e660f-af0e-4faa-a70f-f03ee9a2d96f",
+    "name": "LanchoneteAPI - Plano de Testes (12 cenários)",
+    "description": "Plano de testes da LanchoneteAPI com 12 cenários: 6 positivos e 6 negativos. Abrange autenticação, autorização, validações, consulta de menu, pedidos, estoque e pagamento mock. Execute primeiro a pasta '00 - Preparação'. Os testes T04/T10 dependem de unidade e produto válidos; T12 depende da regra de recusa implementada no mock.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 - Preparação",
+      "description": "Preencha as credenciais no ambiente. Depois execute os três logins e, para os testes de pagamento, crie os pedidos auxiliares desta pasta.",
+      "item": [
+        {
+          "name": "00.1 Login CLIENTE - salvar clienteToken",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login"
+              ]
+            },
+            "description": "Execute antes dos cenários que utilizam o perfil CLIENTE.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"{{clienteUsuario}}\",\n  \"senha\": \"{{clienteSenha}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login CLIENTE realizado com sucesso\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "const token = json?.data?.accessToken || json?.data?.access_token || json?.accessToken || json?.token;",
+                  "pm.test(\"Token do CLIENTE foi retornado\", function () {",
+                  "    pm.expect(token).to.exist;",
+                  "});",
+                  "if (token) pm.environment.set(\"clienteToken\", token);",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "00.2 Login ADMINISTRADOR - salvar adminToken",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login"
+              ]
+            },
+            "description": "Preencha adminUsuario e adminSenha no ambiente antes de executar.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"{{adminUsuario}}\",\n  \"senha\": \"{{adminSenha}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login ADMINISTRADOR realizado com sucesso\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "const token = json?.data?.accessToken || json?.data?.access_token || json?.accessToken || json?.token;",
+                  "pm.test(\"Token do ADMINISTRADOR foi retornado\", function () {",
+                  "    pm.expect(token).to.exist;",
+                  "});",
+                  "if (token) pm.environment.set(\"adminToken\", token);",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "00.3 Login FUNCIONÁRIO - salvar funcionarioToken",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login"
+              ]
+            },
+            "description": "Use um usuário com perfil ATENDENTE, COZINHEIRO, GERENCIA ou ADMINISTRADOR, conforme sua regra.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"{{funcionarioUsuario}}\",\n  \"senha\": \"{{funcionarioSenha}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login FUNCIONÁRIO realizado com sucesso\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "const token = json?.data?.accessToken || json?.data?.access_token || json?.accessToken || json?.token;",
+                  "pm.test(\"Token do FUNCIONÁRIO foi retornado\", function () {",
+                  "    pm.expect(token).to.exist;",
+                  "});",
+                  "if (token) pm.environment.set(\"funcionarioToken\", token);",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "00.4 Criar pedido para pagamento APROVADO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login",
+                "pedidos"
+              ]
+            },
+            "description": "Requer produto com pelo menos 1 unidade disponível em estoque.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clienteToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"unidadeId\": {{unidadeId}},\n  \"observacao\": \"Pedido criado para preparação dos testes.\",\n  \"entrega\": false,\n  \"canalPedido\": \"APP\",\n  \"usarPontos\": false,\n  \"itempedido\": [\n    {\n      \"produtoId\": {{produtoId}},\n      \"quantidade\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Pedido de preparação criado\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "const id = json?.data?.id || json?.data?.pedidoId;",
+                  "if (id) pm.environment.set(\"pedidoIdAprovado\", String(id));",
+                  "pm.test(\"ID salvo em pedidoIdAprovado\", function () { pm.expect(id).to.exist; });",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "00.5 Criar pedido para método INVÁLIDO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login",
+                "pedidos"
+              ]
+            },
+            "description": "Requer produto com pelo menos 1 unidade disponível em estoque.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clienteToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"unidadeId\": {{unidadeId}},\n  \"observacao\": \"Pedido criado para preparação dos testes.\",\n  \"entrega\": false,\n  \"canalPedido\": \"APP\",\n  \"usarPontos\": false,\n  \"itempedido\": [\n    {\n      \"produtoId\": {{produtoId}},\n      \"quantidade\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Pedido de preparação criado\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "const id = json?.data?.id || json?.data?.pedidoId;",
+                  "if (id) pm.environment.set(\"pedidoIdMetodoInvalido\", String(id));",
+                  "pm.test(\"ID salvo em pedidoIdMetodoInvalido\", function () { pm.expect(id).to.exist; });",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "00.6 Criar pedido para pagamento RECUSADO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login",
+                "pedidos"
+              ]
+            },
+            "description": "Requer produto com pelo menos 1 unidade disponível em estoque.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clienteToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"unidadeId\": {{unidadeId}},\n  \"observacao\": \"Pedido criado para preparação dos testes.\",\n  \"entrega\": false,\n  \"canalPedido\": \"APP\",\n  \"usarPontos\": false,\n  \"itempedido\": [\n    {\n      \"produtoId\": {{produtoId}},\n      \"quantidade\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Pedido de preparação criado\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "const id = json?.data?.id || json?.data?.pedidoId;",
+                  "if (id) pm.environment.set(\"pedidoIdRecusado\", String(id));",
+                  "pm.test(\"ID salvo em pedidoIdRecusado\", function () { pm.expect(id).to.exist; });",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 - Plano de Testes (12 cenários)",
+      "description": "6 testes positivos e 6 negativos.",
+      "item": [
+        {
+          "name": "T01 [POSITIVO] Login com credenciais válidas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login"
+              ]
+            },
+            "description": "Valida autenticação com credenciais de um cliente cadastrado e ativo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"{{clienteUsuario}}\",\n  \"senha\": \"{{clienteSenha}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"T01 - Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "const token = json?.data?.accessToken || json?.data?.access_token || json?.accessToken || json?.token;",
+                  "pm.test(\"T01 - Token JWT foi retornado\", function () {",
+                  "    pm.expect(token).to.exist;",
+                  "});",
+                  "if (token) pm.environment.set(\"clienteToken\", token);",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T02 [POSITIVO] Cadastrar novo cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuario/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuario",
+                "register"
+              ]
+            },
+            "description": "Gera e-mail e CPF de teste antes de cada execução para reduzir conflito de unicidade.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Cliente Teste Postman\",\n  \"email\": \"{{novoEmail}}\",\n  \"cpf\": \"{{novoCpf}}\",\n  \"telefone\": \"(24)99999-9999\",\n  \"cep\": \"27500-000\",\n  \"senha\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const ts = Date.now().toString();",
+                  "pm.environment.set(\"novoEmail\", `cliente.postman.${ts}@email.com`);",
+                  "pm.environment.set(\"novoCpf\", ts.slice(-11).padStart(11, \"1\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"T02 - Status 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"T02 - Resposta contém dados do usuário\", function () {",
+                  "    pm.expect(json?.data).to.exist;",
+                  "});",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T03 [POSITIVO] Consultar menu da unidade",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/unidade/{{unidadeId}}/menu?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unidade",
+                "{{unidadeId}}",
+                "menu"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "A documentação OpenAPI atual marca a rota como autenticada.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clienteToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"T03 - Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"T03 - Resposta possui campo data\", function () {",
+                  "    pm.expect(json).to.have.property('data');",
+                  "});",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T04 [POSITIVO] Criar pedido com estoque disponível",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login",
+                "pedidos"
+              ]
+            },
+            "description": "Requer unidade/produto válidos e quantidade disponível em estoque.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clienteToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"unidadeId\": {{unidadeId}},\n  \"observacao\": \"Sem cebola - teste T04.\",\n  \"entrega\": false,\n  \"canalPedido\": \"APP\",\n  \"usarPontos\": false,\n  \"itempedido\": [\n    {\n      \"produtoId\": {{produtoId}},\n      \"quantidade\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"T04 - Status 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"T04 - Pedido inicia aguardando pagamento\", function () {",
+                  "    pm.expect(json?.data?.status).to.eql(\"AGUARDANDO_PAGAMENTO\");",
+                  "});",
+                  "const id = json?.data?.id || json?.data?.pedidoId;",
+                  "if (id) pm.environment.set(\"pedidoIdCriado\", String(id));",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T05 [POSITIVO] Pagamento mock aprovado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login/pedidos/{{pedidoIdAprovado}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login",
+                "pedidos",
+                "{{pedidoIdAprovado}}"
+              ]
+            },
+            "description": "Por padrão, metodoAprovado está como PIX. Ajuste no ambiente caso seu mock utilize outra regra.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clienteToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodo\": \"{{metodoAprovado}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"T05 - Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"T05 - Pagamento aprovado\", function () {",
+                  "    pm.expect(json?.data?.aprovado).to.eql(true);",
+                  "});",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T06 [POSITIVO] Consultar pedidos em aberto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/funcionarios/pedidos/em_aberto?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "funcionarios",
+                "pedidos",
+                "em_aberto"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Use um funcionário vinculado a uma unidade e com perfil permitido.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{funcionarioToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"T06 - Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"T06 - Resposta possui data\", function () {",
+                  "    pm.expect(json).to.have.property('data');",
+                  "});",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T07 [NEGATIVO] Acessar rota protegida sem token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuario/consulta/saldo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuario",
+                "consulta",
+                "saldo"
+              ]
+            },
+            "description": "A requisição é enviada propositalmente sem Authorization."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"T07 - Status 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"T07 - Resposta possui erro padronizado\", function () {",
+                  "    pm.expect(json?.error).to.exist;",
+                  "});",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T08 [NEGATIVO] Cliente tenta acessar rota administrativa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/promocoes?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "promocoes"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "A listagem administrativa de promoções permite perfis administrativos/gerenciais, não CLIENTE.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clienteToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"T08 - Status 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"T08 - Erro de autorização retornado\", function () {",
+                  "    pm.expect(json?.error).to.exist;",
+                  "});",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T09 [NEGATIVO] Cadastro com CPF em tipo inválido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuario/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuario",
+                "register"
+              ]
+            },
+            "description": "O contrato da API define CPF como string; neste teste ele é enviado como número.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Cliente CPF Inválido\",\n  \"email\": \"cpf.invalido.postman@email.com\",\n  \"cpf\": 12345678900,\n  \"telefone\": \"(24)99999-9999\",\n  \"cep\": \"27500-000\",\n  \"senha\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"T09 - Status 422\", function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"T09 - Resposta possui erro de validação\", function () {",
+                  "    pm.expect(json?.error).to.exist;",
+                  "});",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T10 [NEGATIVO] Criar pedido com estoque insuficiente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login",
+                "pedidos"
+              ]
+            },
+            "description": "quantidadeInsuficiente vem como 999999 por padrão; use um produto existente da unidade.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clienteToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"unidadeId\": {{unidadeId}},\n  \"observacao\": \"Teste de estoque insuficiente.\",\n  \"entrega\": false,\n  \"canalPedido\": \"APP\",\n  \"usarPontos\": false,\n  \"itempedido\": [\n    {\n      \"produtoId\": {{produtoId}},\n      \"quantidade\": {{quantidadeInsuficiente}}\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"T10 - Status 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"T10 - Pedido não deve ser criado\", function () {",
+                  "    pm.expect(json?.error).to.exist;",
+                  "});",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T11 [NEGATIVO] Método de pagamento inválido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login/pedidos/{{pedidoIdMetodoInvalido}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login",
+                "pedidos",
+                "{{pedidoIdMetodoInvalido}}"
+              ]
+            },
+            "description": "BOLETO não pertence ao enum de métodos aceitos pela API.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clienteToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodo\": \"BOLETO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"T11 - Status 422\", function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"T11 - Método inválido foi rejeitado\", function () {",
+                  "    pm.expect(json?.error).to.exist;",
+                  "});",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T12 [NEGATIVO] Pagamento mock recusado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login/pedidos/{{pedidoIdRecusado}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login",
+                "pedidos",
+                "{{pedidoIdRecusado}}"
+              ]
+            },
+            "description": "Este cenário depende da regra real do seu mock. Ajuste metodoRecusa no ambiente para uma condição que gere aprovado=false.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{clienteToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodo\": \"{{metodoRecusa}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"T12 - Endpoint processou a tentativa de pagamento\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test(\"T12 - Mock retornou pagamento recusado\", function () {",
+                  "    pm.expect(json?.data?.aprovado, \"Ajuste metodoRecusa ou a regra do mock para produzir aprovado=false\").to.eql(false);",
+                  "});",
+                  "if (json?.data?.status) {",
+                  "    pm.test(\"T12 - Status do pedido é PAGAMENTO_RECUSADO\", function () {",
+                  "        pm.expect(json.data.status).to.eql(\"PAGAMENTO_RECUSADO\");",
+                  "    });",
+                  "}",
+                  "pm.test(\"Tempo de resposta inferior a 3000 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
