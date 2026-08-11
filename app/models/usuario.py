@@ -52,3 +52,10 @@ class Usuario(db.Model):
         cascade = "all, delete-orphan",
         passive_deletes = True
     )
+
+    consentimentos = db.relationship(
+    "Consentimento",
+    back_populates="usuario",
+    cascade="all, delete-orphan",
+    passive_deletes=True
+)

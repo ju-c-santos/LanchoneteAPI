@@ -45,6 +45,9 @@ tags:
 
   - name: Unidades #alteração de dados e consultas
     description: Gerenciamento das unidades.
+  
+  - name: Consentimentos
+    description: Gerenciamento de consentimentos relacionados à privacidade e ao programa de fidelidade
 
 #--> aqui é onde ficam as rotas
 paths:
@@ -254,6 +257,132 @@ paths:
                 message: "Login realizado com sucesso."
                 data:
                   accessToken: "eyJhbGciOiJIUzI1NiIs..."
+  /usuario/consentimentos/fidelidade:
+    put:
+      tags:
+        - Consentimentos
+      summary: Atualizar consentimento do programa de fidelidade
+      description: >
+        Permite que o cliente conceda ou revogue o consentimento
+        relacionado à participação no programa de fidelidade.
+        O usuário é identificado por meio do token JWT.
+      operationId: atualizarConsentimentoFidelidade
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - aceito
+              properties:
+                aceito:
+                  type: boolean
+                  description: >
+                    Define se o cliente concede ou revoga o
+                    consentimento para participação no programa
+                    de fidelidade.
+                  example: true
+            examples:
+              conceder:
+                summary: Conceder consentimento
+                value:
+                  aceito: true
+              revogar:
+                summary: Revogar consentimento
+                value:
+                  aceito: false
+      responses:
+        "200":
+          description: Consentimento atualizado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsentimentoResponse"
+              example:
+                message: "Consentimento atualizado com sucesso."
+                data:
+                  consentimentoId: 1
+                  finalidade: "PROGRAMA_FIDELIDADE"
+                  aceito: true
+                  versaoTermo: "1.0"
+                  dataConsentimento: "2026-08-10T21:05:00"
+                  dataRevogacao: null
+        "400":
+          description: Corpo da requisição inválido.
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+              example:
+                error: "JSON_INVALIDO"
+                message: "O corpo da requisição deve ser um JSON válido."
+                details: []
+                timestamp: "2026-08-10T21:05:00-03:00"
+                path: "/usuario/consentimentos/fidelidade"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+
+        "401":
+          description: Token JWT ausente, expirado ou inválido.
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+              example:
+                error: "TOKEN_ACESSO"
+                message: "Token de acesso expirado ou inválido."
+                details: []
+                timestamp: "2026-08-10T21:05:00-03:00"
+                path: "/usuario/consentimentos/fidelidade"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+
+        "403":
+          description: Usuário sem permissão para alterar este consentimento.
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+              example:
+                error: "USUARIO_NAO_PERMITIDO"
+                message: "O usuário logado não possui permissão para realizar esta ação."
+                details: []
+                timestamp: "2026-08-10T21:05:00-03:00"
+                path: "/usuario/consentimentos/fidelidade"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+
+        "422":
+          description: Valor informado para o consentimento é inválido.
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+              example:
+                error: "CONSENTIMENTO_INVALIDO"
+                message: "O consentimento informado é inválido."
+                details:
+                  - field: "aceito"
+                    issue: "O valor deve ser true ou false."
+                timestamp: "2026-08-10T21:05:00-03:00"
+                path: "/usuario/consentimentos/fidelidade"
+                requestId: "baaf6e1b-5217-41af-9877-2298562e65e3"
+
+        "500":
+          description: Erro interno do servidor.
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"                  
   /usuario/alteracao/{usuarioId}:
     patch:
       tags:
@@ -4972,6 +5101,51 @@ components:
           type: string
           format: date-time
           example: "2026-08-31T23:59:59"
+    ConsentimentoResponse:
+      type: object
+
+      properties:
+
+        message:
+          type: string
+          example: "Consentimento atualizado com sucesso."
+
+        data:
+          type: object
+
+          properties:
+
+            consentimentoId:
+              type: integer
+              example: 1
+
+            finalidade:
+              type: string
+              enum:
+                - PROGRAMA_FIDELIDADE
+              example: "PROGRAMA_FIDELIDADE"
+
+            aceito:
+              type: boolean
+              example: true
+
+            versaoTermo:
+              type: string
+              example: "1.0"
+
+            dataConsentimento:
+              type:
+                - string
+                - "null"
+              format: date-time
+              example: "2026-08-10T21:05:00"
+
+            dataRevogacao:
+              type:
+                - string
+                - "null"
+              format: date-time
+              example: null
     PaginationMeta:
       type: object
       properties:

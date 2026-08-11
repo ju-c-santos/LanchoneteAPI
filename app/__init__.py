@@ -37,6 +37,8 @@ def create_app():
     from app.models.historico_preco import HistoricoPreco
     from app.models.descontos import TipoDesconto
     from app.models.promocao import Promocao
+    from app.models.consentimento import Consentimento
+    from app.models.fidelidade_consentimento import FidelidadeConsentimento
 
     app = Flask(__name__)
     app.config.from_object('app.config.Config')

@@ -4,6 +4,7 @@ from app.services.usuario_service import AuthServiceUsuario
 from app.util.decorator_perfil import perfil_required
 from app.services.pontos_service import PontosService
 from app.util.api_response import resposta_sucesso
+from app.services.consentimento_service import ConsentimentoService
 from app.util.api_error import ApiError
 
 usuario_bp = Blueprint('usuarios', __name__)
@@ -28,6 +29,31 @@ def register_user():
             "telefone": usuario.telefone
         },
         status_code=201
+    )
+
+@usuario_bp.put("/usuario/consentimentos/fidelidade")
+@perfil_required("CLIENTE")
+def alterar_consentimento_fidelidade():
+    usuario_id = int(get_jwt_identity())
+    dados = request.get_json()
+    if dados is None:
+        raise ApiError(
+            error="JSON_INVALIDO",
+            message="O corpo da requisição deve ser um JSON válido.",
+            status_code=400
+        )
+    registro = (
+        ConsentimentoService
+        .registrar_fidelidade(
+            usuario_id=usuario_id,
+            aceito=dados.get("aceito"),
+            versao_termo="1.0"
+        )
+    )
+    return resposta_sucesso(
+        message="Consentimento atualizado com sucesso.",
+        data=registro,
+        status_code=200
     )
 
 @usuario_bp.patch("/usuarios/alteracao/<int:usuario_id>")

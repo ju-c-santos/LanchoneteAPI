@@ -1,6 +1,8 @@
 from app.models.pontos import Pontos
 from app.repositories.usuario_repository import UsuarioRepository
 from app.repositories.pontos_repository import PontosRepository
+from app.repositories.consentimento_repository import ConsentimentoRepository
+from app.models.fidelidade_consentimento import FidelidadeConsentimento
 from decimal import Decimal, ROUND_HALF_UP
 from app.util.api_error import ApiError
 
@@ -77,6 +79,21 @@ class PontosService:
 
     @staticmethod
     def utilizar_pontos(usuario_id, pedido, pontos_solicitado):
+        consentimento = (
+            ConsentimentoRepository.chase_by_usuario_fidelidade
+            (usuario_id, FidelidadeConsentimento.PROGRAMA_FIDELIDADE)
+        )
+
+        if ( consentimento is None or consentimento.aceito is False):
+            raise ApiError(
+                error="CONSENTIMENTO_NECESSARIO",
+                message=(
+                    "O usuário não autorizou a participação "
+                    "no programa de fidelidade."
+                ),
+                status_code=403
+            )
+
         usuario = UsuarioRepository.chase_by_id(usuario_id)
         if usuario is None:
             raise ApiError(
